@@ -15,17 +15,16 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-
   const login = async (email, password) => {
     const { success, data } = await loginUser(email, password);
     
     if (success) {
       storeUserData(data);
       setUser({ ...data.user, refresh: data.refresh, access: data.access });
-      return true;
+      return { success: true, user: data.user };
     }
     
-    return false;
+    return { success: false };
   };
 
   const logout = () => {
