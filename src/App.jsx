@@ -14,32 +14,13 @@ import OrderConfirmationPage from "./pages/OrderConfirmation";
 import ContactPage from "./pages/Contact";
 import WishlistPage from "./pages/WishList";
 import AccountPage from "./pages/Account";
-import DashBoardLayout from "./pages/Admin/DashBoardLayout";
-import Products from "./pages/Admin/Products";
-import Dashboard from "./pages/Admin/DashBoard";
-import useAuth from './hooks/useAuth';
+
 
 // Protected Route components
 const ProtectedCustomerRoute = ({ children }) => {
-  const { user } = useAuth();
-  
-  if (user.user_type === 'ADMIN') {
-    return <Navigate to="/admin" replace />;
-  }
-  
   return children;
 };
 
-const ProtectedAdminRoute = ({ children }) => {
-  const { user } = useAuth();
-  
-  
-  if (user.user_type !== 'ADMIN') {
-    return <Navigate to="/" replace />;
-  }
-  
-  return children;
-};
 
 const MainLayout = () => {
   return (
@@ -109,32 +90,6 @@ export default function App() {
             } 
           />
         </Route>
-        
-        {/* Admin protected route */}
-        <Route 
-          path="/admin/*" 
-          element={
-            <ProtectedAdminRoute>
-              <DashBoardLayout />
-            </ProtectedAdminRoute>
-          } 
-        />
-        <Route 
-          path="/dashboard" 
-          element={
-            <ProtectedAdminRoute>
-              <Dashboard />
-            </ProtectedAdminRoute>
-          } 
-        />
-        <Route 
-          path="/products-admin" 
-          element={
-            <ProtectedAdminRoute>
-              <Products />
-            </ProtectedAdminRoute>
-          } 
-        />
       </Routes>
     </Router>
   );

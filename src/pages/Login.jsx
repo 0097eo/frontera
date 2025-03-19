@@ -24,12 +24,7 @@ const LoginPage = () => {
             const result = await login(email, password);
 
             if (result.success) {
-                // Check if the user is an admin and navigate accordingly
-                if (result.user && result.user.user_type === 'ADMIN') {
-                    navigate('/admin');
-                } else {
-                    navigate('/');
-                }
+                navigate('/');
             } else {
                 setError('Invalid email or password');
             }
