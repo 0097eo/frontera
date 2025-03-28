@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { Link, useParams, useLocation, useNavigate } from "react-router-dom";
 import { Toaster, toast } from 'sonner';
 import axios from 'axios';
@@ -11,27 +11,8 @@ const OrderConfirmationPage = () => {
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   
-  // Get order details from location state or fetch from API
-  useEffect(() => {
-    document.title = 'Order Confirmation | Shop'
-    const orderDetails = location.state?.orderDetails;
-    const paymentMethod = location.state?.paymentMethod;
-    
-    // If we have order details from navigation state, use them
-    if (orderDetails) {
-      setOrder({...orderDetails, paymentMethod});
-      setLoading(false);
-    } else if (orderId) {
-      // Otherwise fetch from API
-      fetchOrderDetails();
-    } else {
-      // No orderId, redirect to orders page
-      toast.error("Order information not found");
-      navigate("/account/orders");
-    }
-  }, [orderId, location.state]);
-  
-  const fetchOrderDetails = async () => {
+  // Use useCallback to memoize the fetchOrderDetails function
+  const fetchOrderDetails = useCallback(async () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('access');
@@ -55,7 +36,27 @@ const OrderConfirmationPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [orderId, navigate]);
+  
+  // Get order details from location state or fetch from API
+  useEffect(() => {
+    document.title = 'Order Confirmation | Shop'
+    const orderDetails = location.state?.orderDetails;
+    const paymentMethod = location.state?.paymentMethod;
+    
+    // If we have order details from navigation state, use them
+    if (orderDetails) {
+      setOrder({...orderDetails, paymentMethod});
+      setLoading(false);
+    } else if (orderId) {
+      // Otherwise fetch from API
+      fetchOrderDetails();
+    } else {
+      // No orderId, redirect to orders page
+      toast.error("Order information not found");
+      navigate("/account/orders");
+    }
+  }, [orderId, location.state, fetchOrderDetails, navigate]);
   
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -224,7 +225,7 @@ const OrderConfirmationPage = () => {
               <Link to="/account" className="inline-block px-6 py-3 bg-amber-600 text-white rounded hover:bg-amber-700 transition">
                 View Your Orders
               </Link>
-              <Link to="/" className="inline-block px-6 py-3 bg-gray-800 text-white rounded hover:bg-gray-900 transition">
+              <Link to="/shop" className="inline-block px-6 py-3 bg-gray-800 text-white rounded hover:bg-gray-900 transition">
                 Continue Shopping
               </Link>
             </div>
