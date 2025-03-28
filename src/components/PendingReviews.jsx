@@ -212,13 +212,6 @@ const PendingReviews = () => {
       const productId = selectedProduct.id;
       const url = `/api/products/products/${productId}/reviews/${currentReviewId}/`;
       
-      console.log('Updating review:', {
-        productId,
-        reviewId: currentReviewId,
-        url,
-        body: JSON.stringify(reviewFormData)
-      });
-      
       const response = await fetch(url, {
         method: 'PUT',
         headers: {

@@ -613,7 +613,6 @@ const AccountPage = () => {
   };
 
   const viewOrderDetails = (orderId) => {
-    console.log(`View details for order ${orderId}`);
     setSelectedOrderId(orderId);
   };
 
