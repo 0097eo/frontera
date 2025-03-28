@@ -6,8 +6,8 @@ export default function Footer() {
       <div className="container mx-auto px-12 grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
         {/* Company Info */}
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Eshop</h1>
-          <p className="mt-2 text-sm">123 Eshop Street, Nairobi, Kenya</p>
+          <h1 className="text-2xl font-bold text-gray-900">Ideal Furniture & Decor</h1>
+          <p className="mt-2 text-sm">Nyamasaria, Kisumu, Kenya</p>
         </div>
 
         {/* Navigation Links */}
@@ -37,7 +37,7 @@ export default function Footer() {
 
       {/* Copyright with Dynamic Year */}
       <div className="text-center text-gray-600 text-sm mt-8 border-t pt-4">
-        <p>© {new Date().getFullYear()} Eshop. All rights reserved.</p>
+        <p>© {new Date().getFullYear()} Ideal Furniture & Decor. All rights reserved.</p>
       </div>
     </footer>
   );

@@ -15,7 +15,7 @@ const InstagramGallerySection = () => {
         <p className="text-gray-600">Share your setup with</p>
         <div className="flex items-center justify-center mt-2">
           <Instagram size={32} className="mr-4" />
-          <h2 className="text-3xl font-bold">#EShopFurniture</h2>
+          <h2 className="text-3xl font-bold">#Ideal Furniture & Decor</h2>
         </div>
       </div>
 

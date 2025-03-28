@@ -501,16 +501,16 @@ const AccountPage = () => {
           </div>
         </div>
         
-        {/* Eshop Store Credit */}
+        {/*  Store Credit */}
         <div className="border rounded bg-white">
           <div className="border-b p-4">
-            <h2 className="font-bold text-gray-700">ESHOP STORE CREDIT</h2>
+            <h2 className="font-bold text-gray-700">STORE CREDIT</h2>
           </div>
           <div className="p-6 flex items-center gap-3">
             <div className="bg-amber-600 text-white p-2 rounded">
               <Store className="w-5 h-5" />
             </div>
-            <span className="text-gray-700">Eshop store credit balance: KSh 0</span>
+            <span className="text-gray-700">Ideal Furniture & Decor store credit balance: KSh 0</span>
           </div>
         </div>
         
@@ -771,7 +771,7 @@ const AccountPage = () => {
       <div className="w-full md:w-80 bg-white shadow-md">
         <div className="p-4 bg-gray-200 flex items-center gap-3">
           <User className="w-5 h-5" />
-          <span className="font-medium">My Eshop Account</span>
+          <span className="font-medium">My Account</span>
         </div>
         
         <nav className="py-2">

@@ -27,7 +27,7 @@ const ContactPage = () => {
     e.preventDefault();
     
     // Create Gmail compose URL with form data
-    const to = 'info@eshop.com';
+    const to = 'info@idealfurniture.com';
     const subject = encodeURIComponent(formData.subject || 'Contact Form Inquiry');
     const body = encodeURIComponent(`Name: ${formData.name}\nEmail: ${formData.email}\n\n${formData.message}`);
     
@@ -81,7 +81,7 @@ const ContactPage = () => {
               </div>
               <div className="ml-4">
                 <h3 className="text-xl font-bold">Address</h3>
-                <p className="text-gray-700 mt-1">123 Eshop Street, Nairobi, Kenya</p>
+                <p className="text-gray-700 mt-1">Nyamasaria, Kisumu, Kenya</p>
               </div>
             </div>
 

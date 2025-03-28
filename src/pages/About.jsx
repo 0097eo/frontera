@@ -29,7 +29,7 @@ const AboutPage = () => {
         <div className="w-full h-24 sm:h-32 md:h-40 lg:h-56 overflow-hidden">
           <img 
             src={storeImage} 
-            alt="Eshop furniture store" 
+            alt="Ideal Furniture & Decor" 
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 to-black/70"></div>
@@ -50,19 +50,19 @@ const AboutPage = () => {
           <div>
             <h2 className="text-3xl font-bold mb-6">Our Story</h2>
             <p className="text-gray-700 mb-4">
-              Eshop began with a simple vision: to provide high-quality, stylish furniture that transforms houses into homes. Founded in 2010 by furniture enthusiasts with a passion for craftsmanship, we've grown from a small showroom to becoming one of the region's most trusted furniture retailers.
+            Ideal Furniture & Decor began with a simple vision: to provide high-quality, stylish furniture that transforms houses into homes. Founded in 2010 by furniture enthusiasts with a passion for craftsmanship, we've grown from a small showroom to becoming one of the region's most trusted furniture retailers.
             </p>
             <p className="text-gray-700 mb-4">
               What started as a curated collection of sofas and dining sets has evolved into a comprehensive range of furniture and home accessories for every room. Through the years, our commitment to quality, design, and customer satisfaction has remained unwavering.
             </p>
             <p className="text-gray-700">
-              Today, Eshop continues to bring together the best furniture designs from around the world, making them accessible to homeowners who appreciate the difference that thoughtfully chosen pieces can make.
+              Today, Ideal Furniture & Decor continues to bring together the best furniture designs from around the world, making them accessible to homeowners who appreciate the difference that thoughtfully chosen pieces can make.
             </p>
           </div>
           <div className="rounded-lg overflow-hidden h-80">
             <img 
               src={storeImage} 
-              alt="Eshop store" 
+              alt="Ideal Furniture & Decor" 
               className="w-full h-full object-cover"
             />
           </div>
@@ -138,7 +138,7 @@ const AboutPage = () => {
               </p>
               <div className="mb-4">
                 <h3 className="font-bold text-lg">Location</h3>
-                <p className="text-gray-700">123 Eshop street, Nairobi, Kenya</p>
+                <p className="text-gray-700">Nyamasaria, Kisumu, Kenya</p>
               </div>
               <div className="mb-4">
                 <h3 className="font-bold text-lg">Hours</h3>
@@ -154,7 +154,7 @@ const AboutPage = () => {
             <div className="order-1 md:order-2 rounded-lg overflow-hidden h-80">
               <img 
                 src={showroom} 
-                alt="Eshop showroom" 
+                alt="Ideal Furniture & Decor showroom" 
                 className="w-full h-full object-cover"
               />
             </div>

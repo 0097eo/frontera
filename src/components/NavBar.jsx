@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import PropTypes from 'prop-types';
 import useAuth from '../hooks/useAuth';
+import logo from '../assets/logo.png' 
 
 const NavItem = ({ to, children, setIsOpen, icon: Icon }) => (
   <NavLink
@@ -35,8 +36,15 @@ NavItem.propTypes = {
 };
 
 const Logo = () => (
-  <div className="text-2xl font-bold">
-    <span className="text-amber-600">E</span>shop
+  <div className="flex items-center space-x-2">
+    <img 
+      src={logo} 
+      alt="Ideal Furniture Logo" 
+      className="h-10 w-auto object-contain"
+    />
+    <span className="text-2xl font-bold">
+      <span className="text-amber-600">Ideal</span> Furniture & Decor
+    </span>
   </div>
 );
 
