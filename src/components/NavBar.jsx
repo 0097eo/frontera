@@ -40,10 +40,10 @@ const Logo = () => (
     <img 
       src={logo} 
       alt="Ideal Furniture Logo" 
-      className="h-10 w-auto object-contain"
+      className="h-8 w-auto object-contain sm:h-10"
     />
-    <span className="text-2xl font-bold">
-      <span className="text-amber-600">Ideal</span> Furniture & Decor
+    <span className="text-lg sm:text-2xl font-bold">
+      <span className="text-amber-600">Ideal Furniture</span> & Decor
     </span>
   </div>
 );
