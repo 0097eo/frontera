@@ -10,12 +10,12 @@ import Instagram8 from '../assets/instagram1.jpg';
 
 const InstagramGallerySection = () => {
   return (
-    <section className="my-16 max-w-7xl mx-auto px-4">
+    <section className="my-16 max-w-7xl mx-auto px-4" aria-label="Instagram Gallery">
       <div className="text-center mb-6">
         <p className="text-gray-600">Share your setup with</p>
         <div className="flex items-center justify-center mt-2">
-          <Instagram size={32} className="mr-4" />
-          <h2 className="text-3xl font-bold">#Ideal Furniture & Decor</h2>
+          <Instagram size={32} className="mr-4" data-testid="instagram-icon" />
+          <h2 className="text-3xl font-bold">#IdealFurniture&Decor</h2>
         </div>
       </div>
 
