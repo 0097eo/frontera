@@ -43,7 +43,7 @@ const RoomInspirationSection = () => {
   };
 
   return (
-    <section className="my-16 max-w-7xl mx-auto">
+    <section data-testid="room-inspiration" className="my-16 max-w-7xl mx-auto">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Left content */}
         <div className="flex flex-col justify-center p-6">
