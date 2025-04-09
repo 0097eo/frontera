@@ -118,6 +118,7 @@ const Navbar = () => {
                   <Heart strokeWidth={2.5} size={20} />
                 </NavLink>
                 <button
+                  data-testid="logout-button"
                   onClick={handleLogout}
                   className="flex items-center space-x-2 text-gray-700 hover:text-red-500 transition-colors duration-200"
                 >
@@ -149,6 +150,7 @@ const Navbar = () => {
           {/* Mobile Menu Button */}
           <div className="md:hidden">
             <button
+              data-testid="mobile-menu-button"
               onClick={() => setIsOpen(!isOpen)}
               className="text-gray-700 hover:text-amber-600 transition-colors duration-200"
             >
@@ -159,7 +161,7 @@ const Navbar = () => {
 
         {/* Mobile Navigation */}
         {isOpen && (
-          <div className="md:hidden mt-4 space-y-2 bg-white shadow-lg rounded-lg font-bold">
+          <div data-testid="mobile-menu" className="md:hidden mt-4 space-y-2 bg-white shadow-lg rounded-lg font-bold">
             {navLinks.map((link) => (
               <NavItem 
                 key={link.to} 
@@ -183,6 +185,7 @@ const Navbar = () => {
                   Wish List
                 </NavItem>
                 <button
+                  data-testid="mobile-logout-button"
                   onClick={handleLogout}
                   className="w-full text-left flex items-center space-x-2 px-4 py-2 text-gray-700 hover:text-red-500 transition-colors duration-200"
                 >
@@ -201,12 +204,12 @@ const Navbar = () => {
                   <span>Cart</span>
                 </NavLink>
                 <NavLink to="/login" className="block" onClick={() => setIsOpen(false)}>
-                  <button className="w-full border px-4 py-2  hover:bg-gray-100 transition-colors">
+                  <button data-testid="mobile-login-button" className="w-full border px-4 py-2  hover:bg-gray-100 transition-colors">
                     Login
                   </button>
                 </NavLink>
                 <NavLink to="/signup" className="block" onClick={() => setIsOpen(false)}>
-                  <button className="w-full bg-amber-600 text-white px-4 py-2  hover:bg-amber-600 transition-colors">
+                  <button data-testid="mobile-signup-button" className="w-full bg-amber-600 text-white px-4 py-2  hover:bg-amber-600 transition-colors">
                     Sign Up
                   </button>
                 </NavLink>
