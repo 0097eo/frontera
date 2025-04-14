@@ -239,7 +239,7 @@ const ProductDetails = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
+      <div role='status' className="flex justify-center items-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-amber-500"></div>
       </div>
     );
@@ -436,8 +436,10 @@ const ProductDetails = () => {
                         onChange={handleQuantityChange}
                         className="w-12 text-center border-0 focus:ring-0"
                         disabled={!productInCart}
+                        aria-label='Quantity'
+                        role='spinbutton'
                       />
-                      <button 
+                      <button
                         onClick={incrementQuantity}
                         className="px-3 py-1 text-gray-600 hover:bg-gray-100"
                         disabled={!productInCart}
