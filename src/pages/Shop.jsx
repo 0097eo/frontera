@@ -160,7 +160,8 @@ const ProductList = () => {
               >
                 <LayoutGrid size={16} />
               </button>
-              <button 
+              <button
+                data-testid="list-view-button"
                 className={`p-1.5 ${viewMode === 'list' ? 'bg-gray-100' : ''}`}
                 onClick={() => handleViewModeChange('list')}
               >
@@ -341,7 +342,7 @@ const ProductList = () => {
         {/* Products Grid/List View with Error 500 Handling */}
         <div className="mb-6 sm:mb-8">
           {isPending ? (
-            <div className="flex justify-center items-center h-40 sm:h-64">
+            <div role='status' className="flex justify-center items-center h-40 sm:h-64">
               <div className="animate-spin rounded-full h-8 w-8 sm:h-12 sm:w-12 border-t-2 border-b-2 border-amber-500"></div>
             </div>
           ) : serverError ? (
