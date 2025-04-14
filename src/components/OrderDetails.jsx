@@ -56,7 +56,9 @@ const OrderDetails = ({ orderId, onBack }) => {
     };
     
     return (
-      <span className={`px-3 py-1 rounded-full text-sm font-medium ${statusColors[status] || 'bg-gray-100'}`}>
+      <span 
+        data-testid="order-status"
+        className={`px-3 py-1 rounded-full text-sm font-medium ${statusColors[status] || 'bg-gray-100'}`}>
         {status}
       </span>
     );
