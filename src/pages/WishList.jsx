@@ -96,7 +96,7 @@ const WishlistPage = () => {
 
         <div className="container mx-auto px-2 sm:px-4 py-8">
           <div className="flex justify-center items-center h-40 sm:h-64">
-            <div className="animate-spin rounded-full h-8 w-8 sm:h-12 sm:w-12 border-t-2 border-b-2 border-amber-500"></div>
+            <div role='status' className="animate-spin rounded-full h-8 w-8 sm:h-12 sm:w-12 border-t-2 border-b-2 border-amber-500"></div>
           </div>
         </div>
       </div>
@@ -118,7 +118,7 @@ const WishlistPage = () => {
           </div>
           
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <h1 className="text-2xl sm:text-3xl font-bold mb-1 sm:mb-2 text-black">Wishlist</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold mb-1 sm:mb-2 text-black" >Wishlist</h1>
             <p className="text-xs sm:text-sm">
             <Link to="/" className="text-white hover:underline">Home</Link> {'>'} <span className="text-gray-900">Wishlist</span>
             </p>
@@ -247,9 +247,9 @@ const WishlistPage = () => {
                       disabled={removingIds.includes(product.id)}
                     >
                       {removingIds.includes(product.id) ? (
-                        <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-amber-500"></div>
+                        <div  className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-amber-500"></div>
                       ) : (
-                        <Trash2 className="h-4 w-4 text-red-500" />
+                        <Trash2 data-testid='remove-button' className="h-4 w-4 text-red-500" />
                       )}
                     </button>
                   </div>
