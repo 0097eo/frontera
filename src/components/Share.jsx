@@ -93,7 +93,7 @@ const ShareComponent = ({ product }) => {
           <div className="flex justify-between items-center p-3 border-b border-gray-100">
             <h3 className="font-medium">Share This Product</h3>
             <button onClick={toggleShareMenu} className="text-gray-500 hover:text-gray-700">
-              <X size={18} />
+              <X size={18} title="Close"/>
             </button>
           </div>
           <div className="p-3">
