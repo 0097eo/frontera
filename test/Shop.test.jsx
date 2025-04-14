@@ -2,18 +2,18 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { vi, describe, it, expect, beforeEach  } from 'vitest';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import ProductList from './Shop';
-import { useProducts } from '../hooks/useProducts';
+import ProductList from '../src/pages/Shop';
+import { useProducts } from '../src/hooks/useProducts';
 
 // Mock the dependencies
-vi.mock('../hooks/useProducts');
-vi.mock('../components/ProductCard', () => ({
+vi.mock('../src/hooks/useProducts');
+vi.mock('../src/components/ProductCard', () => ({
     default: () => <div data-testid="product-card">Product Card</div>
 }));
-vi.mock('./error/404', () => ({
+vi.mock('../src/pages/error/404', () => ({
     default: () => <div data-testid="not-found">Not Found</div>
 }));
-vi.mock('./error/500', () => ({
+vi.mock('../src/pages/error/500', () => ({
     default: () => <div data-testid="error-500">Server Error</div>
 }));
 
