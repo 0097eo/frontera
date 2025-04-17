@@ -1,22 +1,14 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Check, Lightbulb, Users } from 'lucide-react';
-import man1 from '../assets/man1.jpg'
-import man2 from '../assets/man2.jpg'
-import woman3 from '../assets/woman3.jpg'
-import woman1 from '../assets/woman1.jpg'
+import man1 from '../assets/Generali.jpeg'
 import showroom from '../assets/showroom.jpg'
 import storeImage from '../assets/dresser.jpg'
 import { useEffect } from 'react';
 
 const AboutPage = () => {
-  // Team members data with images and information
-  const teamMembers = [
-    { id: 1, name: "John Davis", position: "Founder & CEO", image: man1 },
-    { id: 2, name: "Michael Roberts", position: "Design Director", image: man2 },
-    { id: 3, name: "Sarah Johnson", position: "Customer Experience", image: woman1 },
-    { id: 4, name: "Emily Chen", position: "Interior Specialist", image: woman3 }
-  ];
+  // Only keeping the CEO team member
+  const teamMember = { id: 1, name: "Kennedy Odhiambo", position: "Founder & CEO", image: man1 };
 
   useEffect(() => {
     document.title = 'About | Shop';
@@ -107,23 +99,21 @@ const AboutPage = () => {
         </div>
       </section>
 
-      {/* Our Team */}
+      {/* Our Team - Modified to show only the CEO */}
       <section className="py-16 container mx-auto px-4">
-        <h2 className="text-3xl font-bold mb-12 text-center">Meet Our Team</h2>
-        <div className="grid md:grid-cols-4 gap-6">
-          {teamMembers.map((member) => (
-            <div key={member.id} className="text-center">
-              <div className="w-40 h-40 rounded-full mx-auto mb-4 overflow-hidden">
-                <img 
-                  src={member.image} 
-                  alt={member.name} 
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <h3 className="text-xl font-bold">{member.name}</h3>
-              <p className="text-gray-600">{member.position}</p>
+        <h2 className="text-3xl font-bold mb-12 text-center">Meet Our Leader</h2>
+        <div className="flex justify-center">
+          <div className="text-center">
+            <div className="w-40 h-40 rounded-full mx-auto mb-4 overflow-hidden">
+              <img 
+                src={teamMember.image} 
+                alt={teamMember.name} 
+                className="w-full h-full object-cover"
+              />
             </div>
-          ))}
+            <h3 className="text-xl font-bold">{teamMember.name}</h3>
+            <p className="text-gray-600">{teamMember.position}</p>
+          </div>
         </div>
       </section>
 
