@@ -285,7 +285,7 @@ const WishlistPage = () => {
                 <Truck className="h-5 w-5 sm:h-6 sm:w-6 text-amber-600" />
               </div>
               <h3 className="text-xs sm:text-sm font-bold mb-0.5 sm:mb-1">Free Shipping</h3>
-              <p className="text-xs text-gray-600 xs:block">Orders over KSh 5k</p>
+              <p className="text-xs text-gray-600 xs:block">Orders over KSh 50k</p>
             </div>
             
             <div className="bg-amber-50 p-2 sm:p-4">

@@ -643,7 +643,7 @@ const ProductDetails = () => {
                 <Truck className="h-6 w-6 text-amber-600" />
               </div>
               <h3 className="text-sm font-bold mb-1">Free Shipping</h3>
-              <p className="text-xs text-gray-600">On orders over Ksh 5,000</p>
+              <p className="text-xs text-gray-600">On orders over Ksh 5,0000</p>
             </div>
             
             <div className="bg-amber-50 p-4">

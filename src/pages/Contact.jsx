@@ -201,7 +201,7 @@ const ContactPage = () => {
                 <Truck className="h-5 w-5 sm:h-6 sm:w-6 md:h-8 md:w-8 text-amber-600" />
               </div>
               <h3 className="text-xs sm:text-sm md:text-base font-bold mb-1">Free Shipping</h3>
-              <p className="text-xs text-gray-600">Orders over KSh 5k</p>
+              <p className="text-xs text-gray-600">Orders over KSh 50k</p>
             </div>
             
             <div className="p-3 sm:p-4 transition-all rounded">
