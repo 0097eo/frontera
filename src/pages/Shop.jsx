@@ -4,7 +4,7 @@ import ProductCard from '../components/ProductCard';
 import { useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import headerImage from '../assets/dresser.jpg';
-import { SlidersHorizontal, LayoutGrid, List, BadgeCheck, Truck, Headset, Trophy} from 'lucide-react';
+import { SlidersHorizontal, LayoutGrid, List, BadgeCheck, Truck, Headset, Trophy, ChevronLeft, ChevronRight} from 'lucide-react';
 import ProductNotFound from './error/404';
 import Error500 from './error/500';
 import { Link } from 'react-router-dom';
@@ -396,17 +396,17 @@ const ProductList = () => {
         {/* Pagination Controls */}
         {data && data.count > 0 && (
           <div className="flex justify-center items-center mb-4 sm:mb-6">
-            <div className="flex items-center">
+            <div className="flex items-center bg-gray-100">
               <button 
                 onClick={() => setPage(page => Math.max(page - 1, 1))}
                 disabled={page === 1}
                 className={`px-2 sm:px-3 py-1 text-sm ${
                   page === 1 
                     ? 'text-gray-400 cursor-not-allowed' 
-                    : 'text-gray-700 hover:bg-gray-100'
+                    : 'text-gray-700 hover:bg-amber-600'
                 }`}
               >
-                <span>&lt;</span>
+                <ChevronLeft size={16} />
               </button>
               
               {/* Only show pagination numbers if there's enough space */}
@@ -456,10 +456,10 @@ const ProductList = () => {
                 className={`px-2 sm:px-3 py-1 text-sm bg-gray-100 text-gray-700 ${
                   !data.next
                     ? 'text-gray-400 cursor-not-allowed'
-                    : 'hover:bg-gray-200'
+                    : 'hover:bg-amber-600'
                 }`}
               >
-                Next
+                <ChevronRight size={16} />
               </button>
             </div>
           </div>

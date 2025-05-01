@@ -518,7 +518,7 @@ const ProductDetails = () => {
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <div className="flex items-center">
                     <Truck size={16} className="text-amber-500 mr-2" />
-                    <span>Free delivery on orders over Ksh 5,000</span>
+                    <span>Free delivery on orders over Ksh 50,000</span>
                   </div>
                   <div className="flex items-center">
                     <Clock size={16} className="text-amber-500 mr-2" />
@@ -643,7 +643,7 @@ const ProductDetails = () => {
                 <Truck className="h-6 w-6 text-amber-600" />
               </div>
               <h3 className="text-sm font-bold mb-1">Free Shipping</h3>
-              <p className="text-xs text-gray-600">On orders over Ksh 5,0000</p>
+              <p className="text-xs text-gray-600">On orders over Ksh 50,000</p>
             </div>
             
             <div className="bg-amber-50 p-4">
