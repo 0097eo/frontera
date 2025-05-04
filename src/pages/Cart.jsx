@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import useCart from "../hooks/useCart";
 import headerImage from '../assets/dresser.jpg';
-import { BadgeCheck, Truck, Headset, Trophy, Trash2 } from 'lucide-react';
+import { BadgeCheck, Truck, Headset, Trophy, Trash2, ShoppingCart } from 'lucide-react';
 import { Toaster, toast } from 'sonner';
 import { useNavigate } from "react-router-dom";
 
@@ -105,34 +105,35 @@ const CartPage = () => {
   if (items.length === 0) {
     return (
       <>
-      <div className="relative text-center">
-        <div className="w-full h-24 sm:h-32 md:h-40 lg:h-56 overflow-hidden">
-          <img 
-            src={headerImage} 
-            alt="Furniture Shop Header" 
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/40 to-black/70"></div>
+        <div className="relative text-center">
+          <div className="w-full h-24 sm:h-32 md:h-40 lg:h-56 overflow-hidden">
+            <img 
+              src={headerImage} 
+              alt="Furniture Shop Header" 
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-black/40 to-black/70"></div>
+          </div>
+          
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-1 sm:mb-2 text-white">Cart</h1>
+            <p className="text-xs sm:text-sm">
+              <Link to="/" className="text-white hover:underline">Home</Link> {'>'} <span className="text-gray-200">Cart</span>
+            </p>
+          </div>
         </div>
-        
-        <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-1 sm:mb-2 text-black">Cart</h1>
-          <p className="text-xs sm:text-sm">
-            <Link to="/" className="text-black hover:underline">Home</Link> {'>'} <span className="text-gray-200">Cart</span>
-          </p>
+        <div className="container mx-auto px-4 py-8 max-w-4xl">
+          <div className="text-center py-16">
+            <ShoppingCart className="mx-auto mb-4 text-gray-400" size={64} strokeWidth={1.5} />
+            <h1 className="text-2xl font-semibold mb-4">Your cart is empty</h1>
+            <Link 
+              to="/shop" 
+              className="inline-block bg-amber-600 text-white px-6 py-2 rounded hover:bg-gray-800 transition"
+            >
+              Continue Shopping
+            </Link>
+          </div>
         </div>
-      </div>
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <div className="text-center py-16">
-          <h1 className="text-2xl font-semibold mb-4">Your cart is empty</h1>
-          <Link 
-            to="/shop" 
-            className="inline-block bg-amber-500 text-white px-6 py-2 rounded hover:bg-gray-800 transition"
-          >
-            Continue Shopping
-          </Link>
-        </div>
-      </div>
       </>
     );
   }
