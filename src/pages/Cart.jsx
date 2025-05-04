@@ -86,6 +86,10 @@ const CartPage = () => {
     );
   };
 
+  const formatPrice = (price) => {
+    return price ? price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") : '0';
+  };
+
   if (loading) {
     return (
       <div
@@ -216,7 +220,7 @@ const CartPage = () => {
                       )}
                       
                       <div className="mt-1 text-sm font-medium">
-                        Ksh {item.price.toFixed(2)}
+                        Ksh {formatPrice(item.price.toFixed(2))}
                       </div>
                       
                       {/* Mobile Quantity and subtotal */}
@@ -244,7 +248,7 @@ const CartPage = () => {
                         
                         <div className="text-sm">
                           <span className="text-gray-500 mr-1">Subtotal:</span>
-                          <span className="font-medium">Ksh {(item.price * item.quantity).toFixed(2)}</span>
+                          <span className="font-medium">Ksh {formatPrice((item.price * item.quantity).toFixed(2))}</span>
                         </div>
                       </div>
                     </div>
@@ -275,7 +279,7 @@ const CartPage = () => {
                         <p className="text-sm text-gray-500">{item.primary_material}</p>
                       )}
                       <div className="mt-1 text-sm">
-                        Ksh {item.price.toFixed(2)}
+                        Ksh {formatPrice(item.price.toFixed(2))}
                       </div>
                     </div>
                   </div>
@@ -304,7 +308,7 @@ const CartPage = () => {
                   </div>
                   
                   <div className="flex justify-between items-center">
-                    <span>Ksh {(item.price * item.quantity).toFixed(2)}</span>
+                    <span>Ksh {formatPrice((item.price * item.quantity).toFixed(2))}</span>
                     <button
                       onClick={() => handleRemoveItem(item.id)}
                       className="text-gray-400 hover:text-red-500 transition p-1 group"
@@ -344,7 +348,7 @@ const CartPage = () => {
               <div className="space-y-2 mb-4">
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Subtotal</span>
-                  <span>Ksh {total.toFixed(2)}</span>
+                  <span>Ksh {formatPrice(total.toFixed(2))}</span>
                 </div>
                 
                 <div className="flex justify-between text-sm border-b border-gray-200 pb-2">
@@ -354,7 +358,7 @@ const CartPage = () => {
                 
                 <div className="flex justify-between font-medium pt-2">
                   <span>Total</span>
-                  <span>Ksh {total.toFixed(2)}</span>
+                  <span>Ksh {formatPrice(total.toFixed(2))}</span>
                 </div>
               </div>
               

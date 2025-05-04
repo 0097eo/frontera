@@ -145,6 +145,10 @@ const ProductDetails = () => {
     }
   };
 
+  const formatPrice = (price) => {
+    return price ? price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") : '0';
+  };
+
   const handleToggleWishlist = async () => {
     if (!product) return;
     
@@ -366,7 +370,7 @@ const ProductDetails = () => {
               <h1 className="text-2xl font-bold mb-2">{product.name}</h1>
               
               <div className="text-amber-600 text-2xl font-bold mb-4">
-                Ksh {product.price?.toLocaleString()}
+                Ksh {formatPrice(product.price)}
               </div>
               
               <div className="mb-4">

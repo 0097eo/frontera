@@ -273,6 +273,10 @@ const AccountPage = () => {
   // Format the user's full name
   const fullName = user ? `${user.first_name} ${user.last_name}` : '';
 
+  const formatPrice = (price) => {
+    return price ? parseFloat(price).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") : '0.00';
+  };
+
   const renderOrderStatus = (status) => {
     const statusColors = {
       'PENDING': 'bg-amber-100 text-amber-800',
@@ -571,7 +575,7 @@ const AccountPage = () => {
                       {new Date(order.created_at).toLocaleDateString()}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      Ksh {parseFloat(order.total_price).toFixed(2)}
+                      Ksh {formatPrice(order.total_price)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       {renderOrderStatus(order.status)}

@@ -26,8 +26,8 @@ const CheckoutPage = () => {
   });
 
   
-  const SHIPPING_FEE = 500; 
-  const FREE_SHIPPING_THRESHOLD = 5000; 
+  const SHIPPING_FEE = 1500; 
+  const FREE_SHIPPING_THRESHOLD = 50000; 
   const isShippingFree = total >= FREE_SHIPPING_THRESHOLD;
   const shippingFeeAmount = isShippingFree ? 0 : SHIPPING_FEE;
   const finalTotal = total + shippingFeeAmount;
@@ -150,6 +150,11 @@ ${formData.additionalInfo ? `Notes: ${formData.additionalInfo}` : ''}`;
       setIsProcessing(false);
     }
   };
+
+  const formatPrice = (price) => {
+    return price ? price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") : '0';
+  };
+  
 
   if (loading) {
     return (
@@ -359,14 +364,14 @@ ${formData.additionalInfo ? `Notes: ${formData.additionalInfo}` : ''}`;
                       <div>
                         {item.name} <span className="text-gray-500">× {item.quantity}</span>
                       </div>
-                      <div>Ksh {(item.price * item.quantity).toFixed(2)}</div>
+                      <div>Ksh {formatPrice((item.price * item.quantity).toFixed(2))}</div>
                     </div>
                   ))}
                 </div>
                 
                 <div className="flex justify-between py-3 border-b border-gray-200">
                   <div className="font-medium">Subtotal</div>
-                  <div>Ksh {total.toFixed(2)}</div>
+                  <div>Ksh {formatPrice(total.toFixed(2))}</div>
                 </div>
                 
                 <div className="flex justify-between py-3 border-b border-gray-200">
@@ -375,11 +380,11 @@ ${formData.additionalInfo ? `Notes: ${formData.additionalInfo}` : ''}`;
                     {isShippingFree ? (
                       <span className="text-green-600">Free</span>
                     ) : (
-                      <span>Ksh {shippingFeeAmount.toFixed(2)}</span>
+                      <span>Ksh {formatPrice(shippingFeeAmount.toFixed(2))}</span>
                     )}
                     {!isShippingFree && (
                       <div className="text-xs text-gray-500 mt-1">
-                        (Free shipping on orders over Ksh {FREE_SHIPPING_THRESHOLD.toLocaleString()})
+                        (Free shipping on orders over Ksh {formatPrice(FREE_SHIPPING_THRESHOLD)})
                       </div>
                     )}
                   </div>
@@ -387,7 +392,7 @@ ${formData.additionalInfo ? `Notes: ${formData.additionalInfo}` : ''}`;
                 
                 <div className="flex justify-between py-3 border-b border-gray-200">
                   <div className="font-medium">Total</div>
-                  <div className="text-xl font-bold text-amber-600">Ksh {finalTotal.toFixed(2)}</div>
+                  <div className="text-xl font-bold text-amber-600">Ksh {formatPrice(finalTotal.toFixed(2))}</div>
                 </div>
                 
                 {/* Payment Methods */}
@@ -479,7 +484,7 @@ ${formData.additionalInfo ? `Notes: ${formData.additionalInfo}` : ''}`;
                 <Truck className="h-5 w-5 sm:h-6 sm:w-6 text-amber-600" />
               </div>
               <h3 className="text-xs sm:text-sm font-bold mb-0.5 sm:mb-1">Free Shipping</h3>
-              <p className="text-xs text-gray-600 hidden xs:block">Orders over KSh 5k</p>
+              <p className="text-xs text-gray-600 hidden xs:block">Orders over KSh 50,000</p>
             </div>
             
             <div className="bg-amber-50 p-2 sm:p-4">

@@ -18,7 +18,7 @@ const ProductCard = ({ product }) => {
   };
 
   const formatPrice = (price) => {
-    return price ? price.toLocaleString() : '0';
+    return price ? price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") : '0';
   };
 
   return (

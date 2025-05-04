@@ -3,6 +3,7 @@ import { Link, useParams, useLocation, useNavigate } from "react-router-dom";
 import { Toaster, toast } from 'sonner';
 import axios from 'axios';
 import headerImage from '../assets/dresser.jpg';
+import { BadgeCheck, Headset, Trophy, Truck } from 'lucide-react';
 
 const OrderConfirmationPage = () => {
   const { orderId } = useParams();
@@ -65,6 +66,10 @@ const OrderConfirmationPage = () => {
       month: 'long',
       day: 'numeric'
     });
+  };
+
+  const formatPrice = (price) => {
+    return price ? parseFloat(price).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") : '0.00';
   };
   
   if (loading) {
@@ -133,7 +138,7 @@ const OrderConfirmationPage = () => {
               </div>
               <div>
                 <p className="text-gray-500 text-sm">Total</p>
-                <p className="font-medium">Ksh {parseFloat(order.total_price).toFixed(2)}</p>
+                <p className="font-medium">Ksh {formatPrice(order.total_price)}</p>
               </div>
               <div>
                 <p className="text-gray-500 text-sm">Payment Method</p>
@@ -164,10 +169,10 @@ const OrderConfirmationPage = () => {
                         {item.quantity}
                       </td>
                       <td className="text-right py-3 px-2">
-                        Ksh {parseFloat(item.product_price).toFixed(2)}
+                        Ksh {formatPrice(item.product_price)}
                       </td>
                       <td className="text-right py-3 px-2 font-medium">
-                        Ksh {parseFloat(item.subtotal).toFixed(2)}
+                        Ksh {formatPrice(item.subtotal)}
                       </td>
                     </tr>
                   ))}
@@ -176,7 +181,7 @@ const OrderConfirmationPage = () => {
                   <tr>
                     <td colSpan="3" className="text-right py-3 px-2 font-medium">Total</td>
                     <td className="text-right py-3 px-2 font-bold">
-                      Ksh {parseFloat(order.total_price).toFixed(2)}
+                      Ksh {formatPrice(order.total_price)}
                     </td>
                   </tr>
                 </tfoot>
@@ -208,7 +213,7 @@ const OrderConfirmationPage = () => {
               </p>
               <div className="bg-white p-3 rounded text-sm">
                 <p className="mb-1"><span className="font-medium">Bank:</span> National Bank of Kenya</p>
-                <p className="mb-1"><span className="font-medium">Account Name:</span> Furniture Company Ltd</p>
+                <p className="mb-1"><span className="font-medium">Account Name:</span> Ideal Furniture & Decor</p>
                 <p className="mb-1"><span className="font-medium">Account Number:</span> 1234567890</p>
                 <p className="mb-1"><span className="font-medium">Branch Code:</span> 12345</p>
                 <p><span className="font-medium">Reference:</span> Order #{order.id}</p>
@@ -228,6 +233,45 @@ const OrderConfirmationPage = () => {
               <Link to="/shop" className="inline-block px-6 py-3 bg-gray-800 text-white rounded hover:bg-gray-900 transition">
                 Continue Shopping
               </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      {/* Footer Features - Moved outside the container for full width */}
+      <div className="w-full bg-amber-50 py-6 sm:py-8">
+        <div className="container mx-auto px-2 sm:px-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 text-center">
+            <div className="bg-amber-50 p-2 sm:p-4">
+              <div className="flex justify-center mb-1 sm:mb-2">
+                <Trophy className="h-5 w-5 sm:h-6 sm:w-6 text-amber-600" />
+              </div>
+              <h3 className="text-xs sm:text-sm font-bold mb-0.5 sm:mb-1">High Quality</h3>
+              <p className="text-xs text-gray-600 hidden xs:block">Curated products</p>
+            </div>
+            
+            <div className="bg-amber-50 p-2 sm:p-4">
+              <div className="flex justify-center mb-1 sm:mb-2">
+                <BadgeCheck className="h-5 w-5 sm:h-6 sm:w-6 text-amber-600" />
+              </div>
+              <h3 className="text-xs sm:text-sm font-bold mb-0.5 sm:mb-1">Warranty Protection</h3>
+              <p className="text-xs text-gray-600 hidden xs:block">Over 2 years</p>
+            </div>
+            
+            <div className="bg-amber-50 p-2 sm:p-4">
+              <div className="flex justify-center mb-1 sm:mb-2">
+                <Truck className="h-5 w-5 sm:h-6 sm:w-6 text-amber-600" />
+              </div>
+              <h3 className="text-xs sm:text-sm font-bold mb-0.5 sm:mb-1">Free Shipping</h3>
+              <p className="text-xs text-gray-600 hidden xs:block">Orders over KSh 50,000</p>
+            </div>
+            
+            <div className="bg-amber-50 p-2 sm:p-4">
+              <div className="flex justify-center mb-1 sm:mb-2">
+                <Headset className="h-5 w-5 sm:h-6 sm:w-6 text-amber-600" />
+              </div>
+              <h3 className="text-xs sm:text-sm font-bold mb-0.5 sm:mb-1">24/7 Support</h3>
+              <p className="text-xs text-gray-600 hidden xs:block">Dedicated support</p>
             </div>
           </div>
         </div>

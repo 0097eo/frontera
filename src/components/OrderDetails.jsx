@@ -54,6 +54,7 @@ const OrderDetails = ({ orderId, onBack }) => {
       'DELIVERED': 'bg-green-100 text-green-800',
       'CANCELLED': 'bg-red-100 text-red-800'
     };
+
     
     return (
       <span 
@@ -80,6 +81,11 @@ const OrderDetails = ({ orderId, onBack }) => {
         return <ShoppingBag className="w-6 h-6 text-gray-500" />;
     }
   };
+
+  const formatPrice = (price) => {
+    return price ? parseFloat(price).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") : '0.00';
+  };
+  
 
   if (loading) {
     return (
@@ -147,7 +153,7 @@ const OrderDetails = ({ orderId, onBack }) => {
             </p>
           </div>
           <div className="mt-4 md:mt-0">
-            <span className="font-semibold">Total:</span>Ksh {parseFloat(orderDetails.total_price).toFixed(2)}
+            <span className="font-semibold">Total:</span>Ksh {formatPrice(orderDetails.total_price)}
           </div>
         </div>
       </div>
@@ -197,10 +203,10 @@ const OrderDetails = ({ orderId, onBack }) => {
                 <h3 className="font-medium">{item.product_name}</h3>
                 <div className="flex justify-between mt-2">
                   <span className="text-gray-600">Qty: {item.quantity}</span>
-                  <span className="font-medium">Ksh {parseFloat(item.product_price || item.price).toFixed(2)}</span>
+                  <span className="font-medium">Ksh {formatPrice(item.product_price || item.price)}</span>
                 </div>
                 <div className="mt-2">
-                  <span className="font-medium">Subtotal: Ksh {parseFloat(item.subtotal).toFixed(2)}</span>
+                  <span className="font-medium">Subtotal: Ksh {formatPrice(item.subtotal)}</span>
                 </div>
               </div>
             </div>
@@ -229,7 +235,7 @@ const OrderDetails = ({ orderId, onBack }) => {
           <div className="border rounded p-4">
             <div className="flex justify-between">
               <span className="font-medium">Total:</span>
-              <span>Ksh {parseFloat(orderDetails.total_price).toFixed(2)}</span>
+              <span>Ksh {formatPrice(orderDetails.total_price)}</span>
             </div>
           </div>
         </div>

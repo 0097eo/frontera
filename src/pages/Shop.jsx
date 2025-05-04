@@ -78,6 +78,10 @@ const ProductList = () => {
     setFilterForm(prev => ({ ...prev, [name]: value }));
   };
 
+  const formatPrice = (price) => {
+    return price ? price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") : '0';
+  };
+
   const applyFilters = (e) => {
     e.preventDefault();
     setFilters(filterForm);
@@ -373,7 +377,7 @@ const ProductList = () => {
                     </div>
                     <div className="p-3 sm:p-4 flex-1">
                       <h3 className="font-medium text-base sm:text-lg mb-1">{product.name}</h3>
-                      <p className="text-amber-600 font-bold mb-2">Ksh {product.price?.toLocaleString()}</p>
+                      <p className="text-amber-600 font-bold mb-2">Ksh {formatPrice(product.price?.toLocaleString())}</p>
                       <p className="text-gray-600 text-xs sm:text-sm mb-3 line-clamp-2">{product.description}</p>
                       <div className="flex gap-2">
                         <button className="bg-amber-600 text-white text-xs sm:text-sm px-3 py-1 rounded hover:bg-amber-700">
@@ -406,7 +410,7 @@ const ProductList = () => {
                     : 'text-gray-700 hover:bg-amber-600'
                 }`}
               >
-                <ChevronLeft size={16} />
+                <ChevronLeft size={28} />
               </button>
               
               {/* Only show pagination numbers if there's enough space */}
@@ -447,7 +451,7 @@ const ProductList = () => {
               
               {/* For mobile screens, show current page / total pages */}
               <div className="xs:hidden px-2">
-                <span className="text-sm text-gray-700">Page {page}</span>
+                <span className="text-sm text-gray-700">{page}</span>
               </div>
               
               <button
@@ -459,7 +463,7 @@ const ProductList = () => {
                     : 'hover:bg-amber-600'
                 }`}
               >
-                <ChevronRight size={16} />
+                <ChevronRight size={28} />
               </button>
             </div>
           </div>
