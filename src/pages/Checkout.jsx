@@ -4,12 +4,13 @@ import useCart from "../hooks/useCart";
 import headerImage from '../assets/dresser.jpg';
 import { Toaster, toast } from 'sonner';
 import axios from 'axios';
-import { BadgeCheck, Truck, Headset, Trophy} from 'lucide-react';
+import { BadgeCheck, Truck, Headset, Trophy, Smartphone } from 'lucide-react';
 
 const CheckoutPage = () => {
   const { items, total, loading, clearCart } = useCart();
   const navigate = useNavigate();
   const [isProcessing, setIsProcessing] = useState(false);
+  const [mpesaProcessing, setMpesaProcessing] = useState(false);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -22,7 +23,8 @@ const CheckoutPage = () => {
     phone: "",
     email: "",
     additionalInfo: "",
-    paymentMethod: "directBankTransfer"
+    paymentMethod: "directBankTransfer",
+    mpesaPhone: "" 
   });
 
   
@@ -42,6 +44,16 @@ const CheckoutPage = () => {
     }
   }, [items, loading, navigate]);
 
+  useEffect(() => {
+    // Pre-fill M-PESA phone number with contact phone if available
+    if (formData.phone && !formData.mpesaPhone) {
+      setFormData(prevData => ({
+        ...prevData,
+        mpesaPhone: prevData.phone
+      }));
+    }
+  }, [formData.phone, formData.mpesaPhone]);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prevData => ({
@@ -57,10 +69,7 @@ const CheckoutPage = () => {
     }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsProcessing(true);
-
+  const validateRequiredFields = () => {
     const requiredFields = ['firstName', 'lastName', 'streetAddress', 'city', 'province', 'zipCode', 'phone', 'email'];
     const missingFields = requiredFields.filter(field => !formData[field]);
 
@@ -68,10 +77,22 @@ const CheckoutPage = () => {
       toast.error("Please fill in all required fields", {
         description: "Some required information is missing"
       });
-      setIsProcessing(false);
-      return;
+      return false;
+    }
+    
+    if (formData.paymentMethod === "mpesa" && !formData.mpesaPhone) {
+      toast.error("M-PESA phone number is required", {
+        description: "Please enter the phone number to use for M-PESA payment"
+      });
+      return false;
     }
 
+    return true;
+  };
+
+
+  // Create order and return order ID
+  const createOrder = async (paymentStatus = "pending") => {
     // Format shipping and billing address
     const formattedAddress = `${formData.firstName} ${formData.lastName}
 ${formData.streetAddress}
@@ -82,23 +103,23 @@ Email: ${formData.email}
 ${formData.companyName ? `Company: ${formData.companyName}` : ''}
 ${formData.additionalInfo ? `Notes: ${formData.additionalInfo}` : ''}`;
 
-    // Prepare request data
+    
     const orderData = {
       shipping_address: formattedAddress,
       billing_address: formattedAddress,
-      shipping_fee: shippingFeeAmount,
-      total_amount: finalTotal
+      shipping_fee: parseInt(shippingFeeAmount),
+      total_amount: parseInt(finalTotal),
+      payment_method: formData.paymentMethod,
+      payment_status: paymentStatus
     };
 
-    
     const token = localStorage.getItem('access');
     if (!token) {
       toast.error("Authentication error", {
         description: "Please log in to complete your order"
       });
-      setIsProcessing(false);
       navigate("/login", { state: { returnUrl: "/checkout" } });
-      return;
+      return null;
     }
 
     try {
@@ -112,22 +133,9 @@ ${formData.additionalInfo ? `Notes: ${formData.additionalInfo}` : ''}`;
           }
         }
       );
-
       
       if (response.status === 201) {
-        clearCart();
-
-        navigate(`/order-confirmation/${response.data.id}`, { 
-          state: { 
-            orderDetails: response.data,
-            paymentMethod: formData.paymentMethod,
-            shippingFee: shippingFeeAmount,
-            subtotal: total,
-            total: finalTotal
-          } 
-        });
-        
-        toast.success('Order placed successfully!');
+        return response.data;
       }
     } catch (error) {
       console.error('Order creation error:', error);
@@ -146,16 +154,182 @@ ${formData.additionalInfo ? `Notes: ${formData.additionalInfo}` : ''}`;
           description: "Please try again or contact customer support"
         });
       }
+      return null;
+    }
+  };
+
+  // Update order with payment data
+  const updateOrderWithPayment = async (orderId, paymentData) => {
+    const token = localStorage.getItem('access');
+    if (!token) return false;
+
+    try {
+      const response = await axios.patch(
+        `/api/orders/orders/${orderId}/update_payment/`,
+        paymentData,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+      
+      return response.status === 200;
+    } catch (error) {
+      console.error('Payment update error:', error);
+      return false;
+    }
+  };
+
+  const handleMpesaPayment = async () => {
+    setMpesaProcessing(true);
+    
+    const token = localStorage.getItem('access');
+    if (!token) {
+      toast.error("Authentication error", {
+        description: "Please log in to complete your payment"
+      });
+      setMpesaProcessing(false);
+      navigate("/login", { state: { returnUrl: "/checkout" } });
+      return;
+    }
+  
+    try {
+      // First create the order with pending payment status
+      const orderData = await createOrder("pending");
+      
+      if (!orderData || !orderData.id) {
+        setMpesaProcessing(false);
+        return;
+      }
+      
+      // Prepare the M-PESA payment payload
+      const mpesaPayload = {
+        phone: formData.mpesaPhone,
+        order_id: orderData.id,
+        amount: parseInt(finalTotal) // Ensure integer amount
+      };
+      
+      // Now initiate M-PESA payment with the order ID
+      const response = await axios.post(
+        '/api/payments/mpesa/',
+        mpesaPayload,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+  
+  
+      if (response.status === 200 || response.status === 201) {
+        toast.success('M-PESA payment initiated', {
+          description: 'Please check your phone for the STK push and enter your PIN'
+        });
+        
+        const paymentData = {
+          transaction_id: response.data.checkout_request_id || response.data.transaction_id,
+          phone_number: formData.mpesaPhone,
+          payment_status: "processing",
+          amount: parseInt(finalTotal) // Ensure integer amount
+        };
+        
+        // Update the order with payment information
+        await updateOrderWithPayment(orderData.id, paymentData);
+        
+        // Navigate to confirmation page
+        clearCart();
+        navigate(`/order-confirmation/${orderData.id}`, { 
+          state: { 
+            orderDetails: {
+              ...orderData,
+              payment_data: paymentData
+            },
+            paymentMethod: formData.paymentMethod,
+            shippingFee: shippingFeeAmount,
+            subtotal: total,
+            total: finalTotal
+          } 
+        });
+      } else {
+        toast.error('M-PESA payment failed', {
+          description: response.data.message || 'Please try again or use a different payment method'
+        });
+      }
+    } catch (error) {
+      console.error('M-PESA payment error:', error);
+      
+      // Log more detailed error information if available
+      if (error.response) {
+        console.error('Error response:', {
+          status: error.response.status,
+          data: error.response.data
+        });
+      }
+      
+      let errorMessage = 'An error occurred while processing your payment';
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.response?.data?.error) {
+        errorMessage = error.response.data.error;
+      }
+      
+      toast.error('M-PESA payment failed', {
+        description: errorMessage
+      });
+    } finally {
+      setMpesaProcessing(false);
+    }
+  };
+
+  const handleRegularOrder = async () => {
+    setIsProcessing(true);
+    
+    try {
+      const orderData = await createOrder(
+        formData.paymentMethod === "directBankTransfer" ? "pending" : "not_paid"
+      );
+      
+      if (orderData && orderData.id) {
+        clearCart();
+        navigate(`/order-confirmation/${orderData.id}`, { 
+          state: { 
+            orderDetails: orderData,
+            paymentMethod: formData.paymentMethod,
+            shippingFee: shippingFeeAmount,
+            subtotal: total,
+            total: finalTotal
+          } 
+        });
+        
+        toast.success('Order placed successfully!');
+      }
     } finally {
       setIsProcessing(false);
     }
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!validateRequiredFields()) {
+      return;
+    }
+
+    if (formData.paymentMethod === "mpesa") {
+      handleMpesaPayment();
+    } else {
+      handleRegularOrder();
+    }
+  };
+
+  // For display purposes only - formats numbers with comma separators
   const formatPrice = (price) => {
     return price ? price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") : '0';
   };
   
-
   if (loading) {
     return (
       <div
@@ -206,7 +380,7 @@ ${formData.additionalInfo ? `Notes: ${formData.additionalInfo}` : ''}`;
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                 <div>
-                  <label htmlFor="firstName" className="block text-sm mb-1">First Name</label>
+                  <label htmlFor="firstName" className="block text-sm mb-1">First Name <span className="text-red-500">*</span></label>
                   <input
                     type="text"
                     id="firstName"
@@ -218,7 +392,7 @@ ${formData.additionalInfo ? `Notes: ${formData.additionalInfo}` : ''}`;
                 </div>
                 
                 <div>
-                  <label htmlFor="lastName" className="block text-sm mb-1">Last Name</label>
+                  <label htmlFor="lastName" className="block text-sm mb-1">Last Name <span className="text-red-500">*</span></label>
                   <input
                     type="text"
                     id="lastName"
@@ -243,7 +417,7 @@ ${formData.additionalInfo ? `Notes: ${formData.additionalInfo}` : ''}`;
               </div>
               
               <div className="mb-4">
-                <label htmlFor="country" className="block text-sm mb-1">Country / Region</label>
+                <label htmlFor="country" className="block text-sm mb-1">Country / Region <span className="text-red-500">*</span></label>
                 <select
                   id="country"
                   name="country"
@@ -259,7 +433,7 @@ ${formData.additionalInfo ? `Notes: ${formData.additionalInfo}` : ''}`;
               </div>
               
               <div className="mb-4">
-                <label htmlFor="streetAddress" className="block text-sm mb-1">Street address</label>
+                <label htmlFor="streetAddress" className="block text-sm mb-1">Street address <span className="text-red-500">*</span></label>
                 <input
                   type="text"
                   id="streetAddress"
@@ -272,7 +446,7 @@ ${formData.additionalInfo ? `Notes: ${formData.additionalInfo}` : ''}`;
               </div>
               
               <div className="mb-4">
-                <label htmlFor="city" className="block text-sm mb-1">Town / City</label>
+                <label htmlFor="city" className="block text-sm mb-1">Town / City <span className="text-red-500">*</span></label>
                 <input
                   type="text"
                   id="city"
@@ -284,7 +458,7 @@ ${formData.additionalInfo ? `Notes: ${formData.additionalInfo}` : ''}`;
               </div>
               
               <div className="mb-4">
-                <label htmlFor="province" className="block text-sm mb-1">Province</label>
+                <label htmlFor="province" className="block text-sm mb-1">Province <span className="text-red-500">*</span></label>
                 <select
                   id="province"
                   name="province"
@@ -305,7 +479,7 @@ ${formData.additionalInfo ? `Notes: ${formData.additionalInfo}` : ''}`;
               </div>
               
               <div className="mb-4">
-                <label htmlFor="zipCode" className="block text-sm mb-1">ZIP code</label>
+                <label htmlFor="zipCode" className="block text-sm mb-1">ZIP code <span className="text-red-500">*</span></label>
                 <input
                   type="text"
                   id="zipCode"
@@ -317,7 +491,7 @@ ${formData.additionalInfo ? `Notes: ${formData.additionalInfo}` : ''}`;
               </div>
               
               <div className="mb-4">
-                <label htmlFor="phone" className="block text-sm mb-1">Phone</label>
+                <label htmlFor="phone" className="block text-sm mb-1">Phone <span className="text-red-500">*</span></label>
                 <input
                   type="tel"
                   id="phone"
@@ -325,11 +499,12 @@ ${formData.additionalInfo ? `Notes: ${formData.additionalInfo}` : ''}`;
                   value={formData.phone}
                   onChange={handleInputChange}
                   className="w-full p-2 border border-gray-300 rounded"
+                  placeholder="e.g. 254712345678"
                 />
               </div>
               
               <div className="mb-4">
-                <label htmlFor="email" className="block text-sm mb-1">Email address</label>
+                <label htmlFor="email" className="block text-sm mb-1">Email address <span className="text-red-500">*</span></label>
                 <input
                   type="email"
                   id="email"
@@ -397,7 +572,46 @@ ${formData.additionalInfo ? `Notes: ${formData.additionalInfo}` : ''}`;
                 
                 {/* Payment Methods */}
                 <div className="mt-6 space-y-4">
-                  <div className="bg-gray-50 p-4 rounded">
+                  {/* M-PESA Payment Option */}
+                  <div className={`${formData.paymentMethod === "mpesa" ? "bg-green-50 border-green-200" : "bg-gray-50"} p-4 rounded border`}>
+                    <div className="flex items-center mb-2">
+                      <input
+                        type="radio"
+                        id="mpesa"
+                        name="paymentMethod"
+                        checked={formData.paymentMethod === "mpesa"}
+                        onChange={() => handlePaymentMethodChange("mpesa")}
+                        className="mr-2"
+                      />
+                      <label htmlFor="mpesa" className="font-medium flex items-center">
+                        <Smartphone className="w-5 h-5 mr-2 text-green-600" />
+                        M-PESA
+                      </label>
+                    </div>
+                    <p className="text-sm text-gray-600 pl-5 mb-3">
+                      Pay securely using M-PESA. You will receive an STK push to complete the payment.
+                    </p>
+                    
+                    {formData.paymentMethod === "mpesa" && (
+                      <div className="pl-5 pt-2">
+                        <label htmlFor="mpesaPhone" className="block text-sm mb-1">M-PESA Phone Number <span className="text-red-500">*</span></label>
+                        <input
+                          type="tel"
+                          id="mpesaPhone"
+                          name="mpesaPhone"
+                          value={formData.mpesaPhone}
+                          onChange={handleInputChange}
+                          placeholder="e.g. 254712345678"
+                          className="w-full p-2 border border-gray-300 rounded"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">
+                          Enter the M-PESA registered phone number (format: 254XXXXXXXXX)
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className={`${formData.paymentMethod === "directBankTransfer" ? "bg-gray-50 border-gray-200" : ""} p-4 rounded border`}>
                     <div className="flex items-center mb-2">
                       <input
                         type="radio"
@@ -414,7 +628,7 @@ ${formData.additionalInfo ? `Notes: ${formData.additionalInfo}` : ''}`;
                     </p>
                   </div>
                   
-                  <div className="border border-gray-200 p-4 rounded">
+                  <div className={`${formData.paymentMethod === "cashOnDelivery" ? "bg-gray-50 border-gray-200" : ""} p-4 rounded border`}>
                     <div className="flex items-center">
                       <input
                         type="radio"
@@ -436,23 +650,32 @@ ${formData.additionalInfo ? `Notes: ${formData.additionalInfo}` : ''}`;
                 </div>
                 
                 <button
-                  type="submit"
-                  disabled={isProcessing}
-                  className={`w-full py-3 px-4 mt-6 ${
-                    isProcessing 
-                      ? "bg-gray-400 cursor-not-allowed" 
-                      : "bg-amber-600 hover:bg-amber-800"
-                  } text-white transition`}
-                >
-                  {isProcessing ? (
-                    <div className="flex justify-center items-center">
-                      <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-2"></div>
-                      Processing...
-                    </div>
-                  ) : (
-                    "Place Order"
-                  )}
-                </button>
+                    type="submit"
+                    disabled={isProcessing || mpesaProcessing}
+                    className={`w-full py-3 px-4 mt-6 ${
+                      isProcessing || mpesaProcessing
+                        ? "bg-gray-400 cursor-not-allowed"
+                        : formData.paymentMethod === "mpesa"
+                          ? "bg-green-600 hover:bg-green-700"
+                          : "bg-amber-600 hover:bg-amber-800"
+                    } text-white transition`}
+                  >
+                    {isProcessing || mpesaProcessing ? (
+                      <div className="flex justify-center items-center">
+                        <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-2"></div>
+                        {formData.paymentMethod === "mpesa" ? "Processing M-PESA..." : "Processing..."}
+                      </div>
+                    ) : (
+                      formData.paymentMethod === "mpesa" ? (
+                        <div className="flex items-center justify-center gap-2">
+                          <Smartphone className="w-5 h-5" />
+                          Pay with M-PESA
+                        </div>
+                      ) : (
+                        "Place Order"
+                      )
+                    )}
+                  </button>
               </div>
             </div>
           </div>
