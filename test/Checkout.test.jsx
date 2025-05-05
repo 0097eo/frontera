@@ -95,8 +95,8 @@ describe('CheckoutPage', () => {
 
     test('calculates shipping fee correctly', () => {
         useCart.mockReturnValue({
-            items: [{ id: 1, name: 'Test Item', price: 6000, quantity: 1 }],
-            total: 6000,
+            items: [{ id: 1, name: 'Test Item', price: 60000, quantity: 1 }],
+            total: 60000,
             loading: false,
             clearCart: vi.fn()
         });
