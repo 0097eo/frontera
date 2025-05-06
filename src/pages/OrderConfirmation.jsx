@@ -142,7 +142,13 @@ const OrderConfirmationPage = () => {
               </div>
               <div>
                 <p className="text-gray-500 text-sm">Payment Method</p>
-                <p className="font-medium">{order.paymentMethod === "directBankTransfer" ? "Bank Transfer" : "Cash on Delivery"}</p>
+                <p className="font-medium">
+                  {order.paymentMethod === "directBankTransfer" 
+                    ? "Bank Transfer" 
+                    : order.paymentMethod === "mpesa" 
+                      ? "M-Pesa" 
+                      : "Cash on Delivery"}
+                </p>
               </div>
             </div>
           </div>
