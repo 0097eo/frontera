@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, Phone, Clock, Trophy, BadgeCheck, Truck, Headset } from 'lucide-react';
 import contactImage from '../assets/dresser.jpg';
+// Import the ContactMap component
+import ContactMap from '../components/ContactMap';
 
 const ContactPage = () => {
   const [formData, setFormData] = useState({
@@ -106,6 +108,9 @@ const ContactPage = () => {
                 <p className="text-gray-700">Saturday-Sunday: 9:00 - 21:00</p>
               </div>
             </div>
+            
+            {/* Map placed below working time */}
+            <ContactMap />
           </div>
 
           {/* Contact Form Column */}
