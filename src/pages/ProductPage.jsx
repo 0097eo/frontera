@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Toaster, toast } from 'sonner';
+import { toast } from 'sonner';
 import { 
   Heart, 
   ShoppingCart, 
@@ -279,12 +279,6 @@ const ProductDetails = () => {
 
   return (
     <div className="bg-gray-50 min-h-screen pt-18">
-      <Toaster 
-          position='top-center'
-          richColors
-          closeButton={true}
-          duration={4000}
-        />
       {/* Breadcrumb Navigation */}
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center text-sm">

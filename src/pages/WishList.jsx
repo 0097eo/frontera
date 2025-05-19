@@ -4,7 +4,7 @@ import useCart from '../hooks/useCart';
 import { Heart, Trash2, ShoppingCart, AlertCircle, BadgeCheck, Truck, Headset, Trophy } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import headerImage from '../assets/dresser.jpg';
-import { Toaster, toast } from 'sonner';
+import { toast } from 'sonner';
 
 const WishlistPage = () => {
   const { wishlist, loading, error, refreshWishlist, removeFromWishlist, clearWishlist } = useWishList();
@@ -138,12 +138,6 @@ const WishlistPage = () => {
 
   return (
     <div className="bg-gray-50 pt-16">
-      <Toaster 
-        position='top-center'
-        richColors
-        closeButton={true}
-        duration={4000}
-      />
       {/* Shop Header */}
       <div className="relative text-center">
         <div className="w-full h-32 sm:h-40 md:h-48 lg:h-64 overflow-hidden">

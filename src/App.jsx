@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Outlet, Navigate } from "react-router-dom";
+import { Toaster } from "sonner";
 import Navbar from "./components/NavBar";
 import Footer from "./components/Footer";
 import Home from "./pages/Home";
@@ -33,10 +34,20 @@ const MainLayout = () => {
 };
 
 export default function App() {
-  
-
   return (
     <Router>
+      <Toaster 
+        position="top-center"
+        richColors
+        closeButton
+        toastOptions={{
+          duration: 5000,
+          classNames: {
+            toast: 'group',
+          },
+        }} 
+      />
+      
       <Routes>
         {/* Public routes */}
         <Route element={<MainLayout />}>
@@ -45,7 +56,7 @@ export default function App() {
           <Route path="/about" element={<AboutPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/cart" element={<CartPage />} />
-        <Route path="/products/:id" element={<ProductDetails/>} />
+          <Route path="/products/:id" element={<ProductDetails/>} />
         </Route>
         
         {/* Public auth routes */}
@@ -53,10 +64,8 @@ export default function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/verify" element={<EmailVerificationPage />} />
         
-
         {/* Customer protected routes */}
         <Route element={<MainLayout />}>
-          
           <Route 
             path="/checkout" 
             element={

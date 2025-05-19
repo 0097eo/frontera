@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Share2, X } from 'lucide-react';
-import { Toaster,toast } from 'sonner'
+import { toast } from 'sonner'
 
 const ShareComponent = ({ product }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -74,12 +74,6 @@ const ShareComponent = ({ product }) => {
 
   return (
     <div className="relative">
-      <Toaster 
-          position='top-center'
-          richColors
-          closeButton={true}
-          duration={4000}
-      />
       <button 
         onClick={toggleShareMenu}
         className="border border-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-100 transition-colors flex items-center"

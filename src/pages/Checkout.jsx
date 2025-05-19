@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import useCart from "../hooks/useCart";
 import headerImage from '../assets/dresser.jpg';
-import { Toaster, toast } from 'sonner';
+import { toast } from 'sonner';
 import axios from 'axios';
 import { BadgeCheck, Truck, Headset, Trophy, Smartphone } from 'lucide-react';
 
@@ -344,13 +344,6 @@ ${formData.additionalInfo ? `Notes: ${formData.additionalInfo}` : ''}`;
 
   return (
     <div className="bg-gray-50 min-h-screen pt-16">
-      <Toaster 
-        position='top-center'
-        richColors
-        closeButton={true}
-        duration={4000}
-      />
-      
       {/* Checkout Header */}
       <div className="relative text-center">
         <div className="w-full h-24 sm:h-32 lg:h-56 overflow-hidden">

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { User, ShoppingBag, MessageSquare, Store, LogOut, X,Edit, MapPin, Trash2, Eye, Settings} from 'lucide-react';
-import { Toaster, toast } from 'sonner';
+import { toast } from 'sonner';
 import OrderDetails from '../components/OrderDetails';
 import PendingReviews from '../components/PendingReviews';
 import useAuth from '../hooks/useAuth'
@@ -762,14 +762,6 @@ const AccountPage = () => {
 
   return (
     <div className="flex flex-col md:flex-row w-full min-h-screen bg-gray-100 pt-16">
-      {/* Sonner Toast Container */}
-      <Toaster 
-        position='top-center'
-        richColors
-        closeButton={true}
-        duration={4000}
-      />
-      
       {/* Sidebar */}
       <div className="w-full md:w-80 bg-white shadow-md">
         <div className="p-4 bg-gray-200 flex items-center gap-3">

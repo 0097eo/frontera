@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { Link, useParams, useLocation, useNavigate } from "react-router-dom";
-import { Toaster, toast } from 'sonner';
+import { toast } from 'sonner';
 import axios from 'axios';
 import headerImage from '../assets/dresser.jpg';
 import { BadgeCheck, Headset, Trophy, Truck } from 'lucide-react';
@@ -84,12 +84,6 @@ const OrderConfirmationPage = () => {
   
   return (
     <div className="bg-gray-50 min-h-screen pt-16">
-      <Toaster 
-        position='top-center'
-        richColors
-        closeButton={true}
-        duration={4000}
-      />
       
       {/* Header */}
       <div className="relative text-center">

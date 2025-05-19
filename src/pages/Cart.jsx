@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import useCart from "../hooks/useCart";
 import headerImage from '../assets/dresser.jpg';
 import { BadgeCheck, Truck, Headset, Trophy, Trash2, ShoppingCart } from 'lucide-react';
-import { Toaster, toast } from 'sonner';
+import { toast } from 'sonner';
 import { useNavigate } from "react-router-dom";
 
 const CartPage = () => {
@@ -140,12 +140,6 @@ const CartPage = () => {
 
   return (
     <div className="bg-gray-50 pt-16">
-      <Toaster 
-        position='top-center'
-        richColors
-        closeButton={true}
-        duration={4000}
-      />
       {/* Cart Header */}
       <div className="relative text-center">
         <div className="w-full h-24 sm:h-32 md:h-40 lg:h-56 overflow-hidden">

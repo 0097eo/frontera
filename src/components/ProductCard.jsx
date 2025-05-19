@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Heart } from 'lucide-react';
+import { toast } from 'sonner';
 import useWishList from '../hooks/useWishList';
 
 const ProductCard = ({ product }) => {
@@ -12,8 +13,16 @@ const ProductCard = ({ product }) => {
     
     if (isInWishlist(product.id)) {
       removeFromWishlist(product.id);
+      toast.success('Removed from wishlist', {
+        description: `${product.name} has been removed from your wishlist`,
+        duration: 3000,
+      });
     } else {
       addToWishlist(product.id);
+      toast.success('Added to wishlist', {
+        description: `${product.name} has been added to your wishlist`,
+        duration: 3000,
+      });
     }
   };
 

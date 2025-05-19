@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Star, Edit, Trash2, MessageSquare, ArrowLeft, Package, Bookmark } from 'lucide-react';
-import { Toaster, toast } from 'sonner';
+import { toast } from 'sonner';
 
 const PendingReviews = () => {
   const [deliveredOrders, setDeliveredOrders] = useState([]);
@@ -625,12 +625,6 @@ const PendingReviews = () => {
         )}
       </div>
 
-      <Toaster 
-                position='top-center'
-                richColors
-                closeButton={true}
-                duration={4000}
-      />
     </div>
   );
 };
