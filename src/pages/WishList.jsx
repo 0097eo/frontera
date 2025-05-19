@@ -211,43 +211,46 @@ const WishlistPage = () => {
           ) : (
             <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4">
               {wishlist.products.map(product => (
-                <div key={product.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden flex flex-col shadow-sm hover:shadow-md transition-shadow">
+                <div 
+                  key={product.id} 
+                  className="bg-white border border-gray-200 rounded-lg overflow-hidden flex flex-col shadow-sm hover:shadow-lg transition-all duration-300 hover:scale-[1.03] hover:border-amber-400 hover:z-10"
+                >
                   <div className="relative h-48 bg-gray-100">
                     <img
                       src={product.image || headerImage}
                       alt={product.name}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover transition-all duration-300 hover:brightness-105"
                     />
                   </div>
                   
-                  <div className="flex-grow p-3 sm:p-4">
-                    <h3 className="font-medium text-base sm:text-lg mb-1 line-clamp-2">{product.name}</h3>
+                  <div className="flex-grow p-3 sm:p-4 transition-colors duration-300 hover:bg-amber-50">
+                    <h3 className="font-medium text-base sm:text-lg mb-1 line-clamp-2 transition-colors duration-300 hover:text-amber-700">{product.name}</h3>
                     <div className="mb-2">
-                      <span className="font-bold text-amber-600">Ksh {Number(product.price).toLocaleString()}</span>
+                      <span className="font-bold text-amber-600 transition-colors duration-300 hover:text-amber-500">Ksh {Number(product.price).toLocaleString()}</span>
                     </div>
                     <p className="text-xs sm:text-sm text-gray-600 line-clamp-2 mb-2">{product.description}</p>
                     {product.stock > 0 ? (
-                      <span className="text-xs text-green-600 font-medium">In Stock</span>
+                      <span className="text-xs text-green-600 font-medium transition-colors duration-300 hover:text-green-500">In Stock</span>
                     ) : (
-                      <span className="text-xs text-red-600 font-medium">Out of Stock</span>
+                      <span className="text-xs text-red-600 font-medium transition-colors duration-300 hover:text-red-500">Out of Stock</span>
                     )}
                   </div>
                   
                   <div className="p-3 sm:p-4 pt-0 flex gap-2">
                     <button
                       onClick={() => handleAddToCart(product)}
-                      className={`flex-1 text-white py-1.5 px-3 rounded-md text-xs sm:text-sm font-medium flex items-center justify-center ${isInCart(product.id) ? 'bg-gray-400' : 'bg-amber-600 hover:bg-amber-700'}`}
+                      className={`flex-1 text-white py-1.5 px-3 rounded-md text-xs sm:text-sm font-medium flex items-center justify-center transition-all duration-300 ${isInCart(product.id) ? 'bg-gray-400' : 'bg-amber-600 hover:bg-amber-700 hover:scale-[1.02]'}`}
                     >
                       <ShoppingCart className="h-4 w-4 mr-2" />
                       {isInCart(product.id) ? 'Already in Cart' : 'Add to Cart'}
                     </button>
                     <button 
-                      className="p-1.5 border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="p-1.5 border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:border-red-300 hover:scale-110"
                       onClick={() => handleRemoveItem(product.id)}
                       disabled={removingIds.includes(product.id)}
                     >
                       {removingIds.includes(product.id) ? (
-                        <div  className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-amber-500"></div>
+                        <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-amber-500"></div>
                       ) : (
                         <Trash2 data-testid='remove-button' className="h-4 w-4 text-red-500" />
                       )}
