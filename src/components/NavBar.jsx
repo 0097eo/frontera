@@ -53,8 +53,6 @@ const WishlistIconWithBadge = () => {
   );
 };
 
-
-
 const NavItem = ({ to, children, setIsOpen, icon: IconComponent }) => (
   <NavLink
     to={to}
@@ -88,7 +86,6 @@ NavItem.propTypes = {
   icon: PropTypes.elementType
 };
 
-
 const NavIcon = ({ to, title, children }) => (
   <NavLink
     to={to}
@@ -108,8 +105,6 @@ NavIcon.propTypes = {
   title: PropTypes.string,
   children: PropTypes.node.isRequired
 };
-
-
 
 const Logo = () => (
   <div className="flex items-center space-x-2">
@@ -131,7 +126,6 @@ const Navbar = () => {
   const navigate = useNavigate();
   const { logout, isAuthenticated } = useAuth();
 
-  // "Smart" Navbar effect
   useEffect(() => {
     let lastScrollY = window.scrollY;
     const handleScroll = () => {
@@ -175,13 +169,13 @@ const Navbar = () => {
             </NavLink>
           </div>
 
-          <div className="hidden md:flex items-center justify-center space-x-8 w-2/4 font-bold">
+          <div data-testid="desktop-nav-links" className="hidden md:flex items-center justify-center space-x-8 w-2/4 font-bold">
             {navLinks.map((link) => (
               <NavItem key={link.to} to={link.to} setIsOpen={setIsOpen}>{link.label}</NavItem>
             ))}
           </div>
           
-          <div className="hidden md:flex items-center justify-end space-x-4 font-bold w-1/3 md:w-1/4">
+          <div data-testid="desktop-auth-section" className="hidden md:flex items-center justify-end space-x-4 font-bold w-1/3 md:w-1/4">
             {isAuthenticated ? (
               <div className="flex items-center space-x-5">
                 <NavIcon to="/account" title="My Account">
@@ -212,14 +206,13 @@ const Navbar = () => {
             <NavIcon to="/cart" title="Shopping Cart">
                 <CartIconWithBadge />
             </NavIcon>
-            <button onClick={() => setIsOpen(!isOpen)} className="text-gray-700 hover:text-amber-600 p-1">
+            <button data-testid="mobile-menu-button" onClick={() => setIsOpen(!isOpen)} className="text-gray-700 hover:text-amber-600 p-1">
               {isOpen ? <X strokeWidth={2.5} size={28} /> : <Menu strokeWidth={2.5} size={28} />}
             </button>
           </div>
         </div>
 
-        {/* Animated Mobile Menu */}
-        <div className={`transition-all duration-500 ease-in-out md:hidden overflow-hidden ${isOpen ? 'max-h-screen' : 'max-h-0'}`}>
+        <div data-testid="mobile-menu" className={`transition-all duration-500 ease-in-out md:hidden overflow-hidden ${isOpen ? 'max-h-screen' : 'max-h-0'}`}>
           <div className="p-4 space-y-2 bg-white/95 border-t border-gray-200 font-bold">
             {navLinks.map((link) => (
               <NavItem key={link.to} to={link.to} setIsOpen={setIsOpen}>{link.label}</NavItem>
@@ -229,11 +222,10 @@ const Navbar = () => {
 
             {isAuthenticated ? (
               <>
-
                 <NavItem to="/account" setIsOpen={setIsOpen} icon={User}>Account</NavItem>
                 <NavItem to="/cart" setIsOpen={setIsOpen} icon={CartIconWithBadge}>Cart</NavItem>
                 <NavItem to="/wishList" setIsOpen={setIsOpen} icon={WishlistIconWithBadge}>Wish List</NavItem>
-                <button onClick={handleLogout} className="w-full text-left flex items-center space-x-2 px-4 py-2 text-gray-700 hover:text-red-500 transition-colors duration-300">
+                <button data-testid="mobile-logout-button" onClick={handleLogout} className="w-full text-left flex items-center space-x-2 px-4 py-2 text-gray-700 hover:text-red-500 transition-colors duration-300">
                   <LogOut strokeWidth={2.5} size={20} />
                   <span className="font-bold">Logout</span>
                 </button>
