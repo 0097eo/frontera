@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
 import room1 from '../assets/room1.jpg';
@@ -7,7 +7,6 @@ import room3 from '../assets/room3.jpg';
 import room4 from '../assets/room4.jpg';
 import room5 from '../assets/room5.jpg';
 import room6 from '../assets/room6.jpg';
-
 
 const roomInspirations = [
   { id: '01', image: room1, type: 'Living Room', title: 'Inner Peace' },
@@ -20,12 +19,24 @@ const roomInspirations = [
 
 const RoomInspirationSection = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const navigate = useNavigate()
-
-  const handleExplore = () => {
-    navigate('/shop');
-  }
+  const navigate = useNavigate();
   
+  const intervalRef = useRef(null);
+
+  useEffect(() => {
+    intervalRef.current = setInterval(() => {
+      setCurrentSlide((prev) => 
+        prev === roomInspirations.length - 1 ? 0 : prev + 1
+      );
+    }, 4000);
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, []); 
+
   const nextSlide = () => {
     setCurrentSlide((prev) => 
       prev === roomInspirations.length - 1 ? 0 : prev + 1
@@ -42,14 +53,18 @@ const RoomInspirationSection = () => {
     setCurrentSlide(index);
   };
 
+  const handleExplore = () => {
+    navigate('/shop');
+  };
+
   return (
     <section data-testid="room-inspiration" className="my-16 max-w-7xl mx-auto">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Left content */}
         <div className="flex flex-col justify-center p-6">
-          <h2 className="text-4xl font-bold mb-4">Beautiful rooms inspiration</h2>
+          <h2 className="text-4xl font-bold mb-4">Beautiful room inspiration</h2>
           <p className="text-gray-600 mb-8">
-            Our designer already made a lot of beautiful prototype of rooms that inspire you
+            Our designer already made a lot of beautiful prototypes of rooms that will inspire you
           </p>
           <button onClick={handleExplore} className="bg-amber-600 text-white px-6 py-3 w-40 hover:bg-amber-700 transition-colors">
             Explore More

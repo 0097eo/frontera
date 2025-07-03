@@ -202,8 +202,8 @@ const Navbar = () => {
                 <NavIcon to="/cart" title="Shopping Cart">
                   <CartIconWithBadge />
                 </NavIcon>
-                <NavLink to="/login"><button className="border-2 border-gray-300 px-4 py-1.5 rounded-lg text-gray-800 font-semibold hover:bg-gray-100 hover:border-gray-400 transition-all duration-300">Login</button></NavLink>
-                <NavLink to="/signup"><button className="bg-amber-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-amber-700 hover:scale-105 transition-all duration-300 shadow-md hover:shadow-lg">Sign Up</button></NavLink>
+                <NavLink to="/login"><button className="border-2 border-gray-300 px-4 py-1.5  text-gray-800 font-semibold hover:bg-gray-100 hover:border-gray-400 transition-all duration-300">Login</button></NavLink>
+                <NavLink to="/signup"><button className="bg-amber-600 text-white px-4 py-2  font-semibold hover:bg-amber-700 hover:scale-105 transition-all duration-300 shadow-md hover:shadow-lg">Sign Up</button></NavLink>
               </div>
             )}
           </div>
@@ -242,10 +242,10 @@ const Navbar = () => {
               <div className="px-2 space-y-3 pt-2">
                 <NavItem to="/cart" setIsOpen={setIsOpen} icon={CartIconWithBadge}>Cart</NavItem>
                 <NavLink to="/login" className="block" onClick={() => setIsOpen(false)}>
-                  <button className="w-full border-2 border-gray-300 py-2 rounded-lg hover:bg-gray-100 font-semibold">Login</button>
+                  <button className="w-full border-2 border-gray-300 py-2 hover:bg-gray-100 font-semibold">Login</button>
                 </NavLink>
                 <NavLink to="/signup" className="block" onClick={() => setIsOpen(false)}>
-                  <button className="w-full bg-amber-600 text-white py-2.5 rounded-lg hover:bg-amber-700 font-semibold">Sign Up</button>
+                  <button className="w-full bg-amber-600 text-white py-2.5  hover:bg-amber-700 font-semibold">Sign Up</button>
                 </NavLink>
               </div>
             )}
