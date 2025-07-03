@@ -29,12 +29,9 @@ describe('AboutPage', () => {
         expect(screen.getByText('Customer Focus')).toBeInTheDocument();
     });
 
-    test('renders Meet Our Team section with four members', () => {
-        expect(screen.getByText('Meet Our Team')).toBeInTheDocument();
-        expect(screen.getByText('John Davis')).toBeInTheDocument();
-        expect(screen.getByText('Michael Roberts')).toBeInTheDocument();
-        expect(screen.getByText('Sarah Johnson')).toBeInTheDocument();
-        expect(screen.getByText('Emily Chen')).toBeInTheDocument();
+    test('renders Meet Our Leader section', () => {
+        expect(screen.getByText('Meet Our Leader')).toBeInTheDocument();
+        expect(screen.getByText('Kennedy Odhiambo')).toBeInTheDocument();
     });
 
     test('renders showroom section', () => {
