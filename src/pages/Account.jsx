@@ -1,10 +1,59 @@
-import React, { useState, useEffect } from 'react';
-import { User, ShoppingBag, MessageSquare, Store, LogOut, X,Edit, MapPin, Trash2, Eye, Settings} from 'lucide-react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { User, ShoppingBag, MessageSquare, Settings, LogOut, X, Edit, MapPin, Trash2, ChevronRight, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 import OrderDetails from '../components/OrderDetails';
 import PendingReviews from '../components/PendingReviews';
-import useAuth from '../hooks/useAuth'
-import { useNavigate } from 'react-router-dom';
+import useAuth from '../hooks/useAuth';
+
+
+const Card = ({ children, className = '', title }) => (
+  <div className={`bg-white border border-gray-200 rounded-lg shadow-sm ${className}`}>
+    {title && (
+      <div className="px-6 py-4 border-b border-gray-200">
+        <h3 className="text-lg font-semibold text-gray-800">{title}</h3>
+      </div>
+    )}
+    <div className="p-6">{children}</div>
+  </div>
+);
+
+const Modal = ({ isOpen, onClose, title, children }) => {
+  if (!isOpen) return null;
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4" onClick={onClose}>
+      <div className="bg-white rounded-lg w-full max-w-md shadow-xl" onClick={(e) => e.stopPropagation()}>
+        <div className="flex justify-between items-center p-5 border-b">
+          <h3 className="text-xl font-semibold">{title}</h3>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 rounded-full p-1">
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+        <div className="p-6">{children}</div>
+      </div>
+    </div>
+  );
+};
+
+const NavItem = ({ icon, label, isActive, onClick }) => {
+  const IconComponent = icon;
+  return (
+    <li>
+      <button
+        onClick={onClick}
+        className={`flex w-full items-center gap-4 px-4 py-3 text-left font-medium transition-colors duration-200 ${
+          isActive
+            ? 'bg-amber-50 text-amber-600 border-r-4 border-amber-600'
+            : 'text-gray-600 hover:bg-gray-100'
+        }`}
+      >
+        <IconComponent className="w-5 h-5" />
+        <span>{label}</span>
+      </button>
+    </li>
+  );
+};
+
 
 const AccountPage = () => {
   const [user, setUser] = useState(null);
@@ -13,838 +62,461 @@ const AccountPage = () => {
   const [activeSection, setActiveSection] = useState('overview');
   const [error, setError] = useState(null);
   const [selectedOrderId, setSelectedOrderId] = useState(null);
-  const [updateLoading, setUpdateLoading] = useState(false);
-  const [addressModalOpen, setAddressModalOpen] = useState(false);
-  const [selectedOrderForAddress, setSelectedOrderForAddress] = useState(null);
-  const [cancelModalOpen, setCancelModalOpen] = useState(false);
-  const [selectedOrderForCancel, setSelectedOrderForCancel] = useState(null);
-  const [cancelLoading, setCancelLoading] = useState(false);
-  const [addressData, setAddressData] = useState({
-    shipping_address: '',
-    billing_address: ''
-  });
+  
+  const [isAddressModalOpen, setAddressModalOpen] = useState(false);
+  const [isCancelModalOpen, setCancelModalOpen] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  
+  const [addressData, setAddressData] = useState({ shipping_address: '', billing_address: '' });
   const [useSameAddress, setUseSameAddress] = useState(true);
   const [accountData, setAccountData] = useState({
-    first_name: '',
-    last_name: '',
-    email: '',
-    phone_number: '',
-    password: '',
-    confirmPassword: ''
+    first_name: '', last_name: '', email: '', phone_number: '', password: '', confirmPassword: ''
   });
-  const { logout } = useAuth()
+  
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [isCancelling, setIsCancelling] = useState(false);
+
+  const { logout } = useAuth();
   const navigate = useNavigate();
 
-  const handleLogout = async () => {
-    await logout();
-    navigate('/')
-  }
+  const fullName = useMemo(() => user ? `${user.first_name} ${user.last_name}`.trim() : 'Guest', [user]);
 
   useEffect(() => {
-    document.title = 'Account | Shop'
+    document.title = 'My Account | Ideal Furniture';
     try {
-      const userData = localStorage.getItem('user');
+      const userData = JSON.parse(localStorage.getItem('user'));
       if (userData) {
-        const parsedUser = JSON.parse(userData);
-        setUser(parsedUser);
+        setUser(userData);
         setAccountData({
-          first_name: parsedUser.first_name || '',
-          last_name: parsedUser.last_name || '',
-          email: parsedUser.email || '',
-          phone_number: parsedUser.phone_number || '',
-          password: '',
-        confirmPassword: ''
+          first_name: userData.first_name || '',
+          last_name: userData.last_name || '',
+          email: userData.email || '',
+          phone_number: userData.phone_number || '',
+          password: '', confirmPassword: ''
         });
+      } else {
+        throw new Error("No user data found.");
       }
-    } catch (error) {
-      console.error('Error fetching user data from localStorage:', error);
+    } catch (err) {
+      toast.error(err.message || 'Could not load user profile. Please log in.');
+      navigate('/login');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [navigate]);
+  
+  
+  const fetchAPI = useCallback(async (url, options = {}) => {
+    const token = localStorage.getItem('access');
+    if (!token) {
+        toast.error('Authentication error. Please log in again.');
+        navigate('/login');
+        throw new Error('No auth token');
+    }
+    const response = await fetch(url, {
+        ...options,
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            ...options.headers,
+        },
+    });
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ detail: `HTTP error! status: ${response.status}` }));
+        throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+    }
+    if (response.status === 204) return null;
+    return response.json();
+  }, [navigate]);
+
+  const fetchOrders = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await fetchAPI('/api/orders/orders/');
+      setOrders(data);
+    } catch (err) {
+      setError('Failed to load orders. Please try again later.');
+      toast.error(err.message || 'Failed to load orders.');
+    } finally {
+      setLoading(false);
+    }
+  }, [fetchAPI]);
+
+  useEffect(() => {
+    if (activeSection === 'orders' && !orders.length) {
+      fetchOrders();
+    }
+  }, [activeSection, orders.length, fetchOrders]);
+
 
   const updateAccountDetails = async (e) => {
     e.preventDefault();
-    setUpdateLoading(true);
-  
-    // Check if passwords match when they're provided
-    if (accountData.password || accountData.confirmPassword) {
-      if (accountData.password !== accountData.confirmPassword) {
-        toast.error('Passwords do not match');
-        setUpdateLoading(false);
-        return;
-      }
-      if (accountData.password.length < 8) {
-        toast.error('Password must be at least 8 characters long');
-        setUpdateLoading(false);
-        return;
-      }
+    if (accountData.password && accountData.password !== accountData.confirmPassword) {
+      return toast.error('Passwords do not match.');
     }
-  
+    if (accountData.password && accountData.password.length < 8) {
+        return toast.error('Password must be at least 8 characters long.');
+    }
+
+    setIsUpdating(true);
     try {
-      const token = localStorage.getItem('access');
-      if (!token) {
-        toast.error('Authentication token not found. Please log in again.');
-        setUpdateLoading(false);
-        return;
-      }
-  
-      // Only send password if it's been changed
-      const dataToSend = { ...accountData };
-      if (!dataToSend.password) {
-        delete dataToSend.password;
+        const dataToSend = { ...accountData };
+        if (!dataToSend.password) delete dataToSend.password;
         delete dataToSend.confirmPassword;
-      } else {
-        delete dataToSend.confirmPassword; 
-      }
+
+        const updatedUser = await fetchAPI('/api/accounts/profile/', {
+            method: 'PUT',
+            body: JSON.stringify(dataToSend)
+        });
+        
+        setUser(updatedUser);
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+        setAccountData(prev => ({ ...prev, password: '', confirmPassword: '' }));
+        toast.success('Account details updated successfully!');
+    } catch (err) {
+        toast.error(err.message || 'Failed to update account details.');
+    } finally {
+        setIsUpdating(false);
+    }
+  };
   
-      const response = await fetch('/api/accounts/profile/', {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(dataToSend)
-      });
+  const updateOrderAddress = async (e) => {
+    e.preventDefault();
+    setIsUpdating(true);
+    try {
+        const dataToSend = {
+            shipping_address: addressData.shipping_address,
+            billing_address: useSameAddress ? addressData.shipping_address : addressData.billing_address
+        };
+        await fetchAPI(`/api/orders/orders/${selectedOrder.id}/address/`, {
+            method: 'PUT',
+            body: JSON.stringify(dataToSend)
+        });
+        await fetchOrders();
+        toast.success(`Address for Order #${selectedOrder.id} updated.`);
+        setAddressModalOpen(false);
+    } catch (err) {
+        toast.error(err.message || 'Failed to update address.');
+    } finally {
+        setIsUpdating(false);
+    }
+  };
+
+  const cancelOrder = async () => {
+    setIsCancelling(true);
+    try {
+        await fetchAPI(`/api/orders/orders/${selectedOrder.id}/delete/`, { method: 'DELETE' });
+        await fetchOrders();
+        toast.success(`Order #${selectedOrder.id} has been cancelled.`);
+        setCancelModalOpen(false);
+        setSelectedOrderId(null);
+        setActiveSection('orders');
+    } catch (err) {
+        toast.error(err.message || 'Failed to cancel order.');
+    } finally {
+        setIsCancelling(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/');
+  };
+
+  const handleAccountChange = (e) => setAccountData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  const handleAddressChange = (e) => setAddressData(prev => ({ ...prev, [e.target.name]: e.target.value }));
   
-      if (!response.ok) {
-        throw new Error(`Error ${response.status}: ${response.statusText}`);
-      }
-  
-      const updatedUser = await response.json();
-      setUser(updatedUser);
-      localStorage.setItem('user', JSON.stringify(updatedUser));
-      // Reset password fields after successful update
-      setAccountData(prev => ({
-        ...prev,
-        password: '',
-        confirmPassword: ''
-      }));
-      toast.success('Account details updated successfully');
-    } catch (error) {
-      console.error('Error updating account:', error);
-      toast.error('Failed to update account details. Please try again.');
-    } finally {
-      setUpdateLoading(false);
-    }
-  };
-
-  const handleAccountChange = (e) => {
-    const { name, value } = e.target;
-    setAccountData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  useEffect(() => {
-    // Fetch orders data when activeSection is 'orders'
-    if (activeSection === 'orders') {
-      fetchOrders();
-    }
-  }, [activeSection]);
-
-  const fetchOrders = async () => {
-    setLoading(true);
-    setError(null);
-    
-    try {
-      const token = localStorage.getItem('access');
-      
-      if (!token) {
-        setError('Authentication token not found. Please log in again.');
-        setLoading(false);
-        return;
-      }
-      
-      const response = await fetch('/api/orders/orders/', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Error ${response.status}: ${response.statusText}`);
-      }
-      
-      const data = await response.json();
-      setOrders(data);
-    } catch (error) {
-      console.error('Error fetching orders:', error);
-      setError('Failed to load orders. Please try again later.');
-      toast.error('Failed to load orders. Please try again later.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Function to update order address
-  const updateOrderAddress = async (orderId) => {
-    setUpdateLoading(true);
-    
-    try {
-      const token = localStorage.getItem('access');
-      
-      if (!token) {
-        setError('Authentication token not found. Please log in again.');
-        toast.error('Authentication token not found. Please log in again.');
-        setUpdateLoading(false);
-        return;
-      }
-      
-      // If using same address for both, copy shipping address to billing address
-      const dataToSend = {
-        ...addressData,
-        billing_address: useSameAddress ? addressData.shipping_address : addressData.billing_address
-      };
-      
-      const response = await fetch(`/api/orders/orders/${orderId}/address/`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(dataToSend)
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Error ${response.status}: ${response.statusText}`);
-      }
-      
-      // Refresh orders list
-      await fetchOrders();
-      toast.success(`Shipping address for Order #${orderId} has been updated successfully`);
-      setAddressModalOpen(false);
-      setSelectedOrderForAddress(null);
-      
-    } catch (error) {
-      console.error(`Error updating order address:`, error);
-      toast.error(`Failed to update shipping address. Please try again later.`);
-    } finally {
-      setUpdateLoading(false);
-    }
-  };
-
-  // Function to cancel order
-  const cancelOrder = async (orderId) => {
-    setCancelLoading(true);
-    
-    try {
-      const token = localStorage.getItem('access');
-      
-      if (!token) {
-        setError('Authentication token not found. Please log in again.');
-        toast.error('Authentication token not found. Please log in again.');
-        setCancelLoading(false);
-        return;
-      }
-      
-      const response = await fetch(`/api/orders/orders/${orderId}/delete/`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Error ${response.status}: ${response.statusText}`);
-      }
-      
-      // Refresh orders list
-      await fetchOrders();
-      toast.success(`Order #${orderId} has been cancelled successfully`);
-      setCancelModalOpen(false);
-      setSelectedOrderForCancel(null);
-      
-      // Navigate back to orders list after cancellation
-      setSelectedOrderId(null);
-      setActiveSection('orders');
-      
-    } catch (error) {
-      console.error(`Error cancelling order:`, error);
-      toast.error(`Failed to cancel order. Please try again later.`);
-    } finally {
-      setCancelLoading(false);
-    }
-  };
-
-  // Format the user's full name
-  const fullName = user ? `${user.first_name} ${user.last_name}` : '';
-
-  const formatPrice = (price) => {
-    return price ? parseFloat(price).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") : '0.00';
-  };
-
-  const renderOrderStatus = (status) => {
-    const statusColors = {
-      'PENDING': 'bg-amber-100 text-amber-800',
-      'PROCESSING': 'bg-blue-100 text-blue-800',
-      'SHIPPED': 'bg-purple-100 text-purple-800',
-      'DELIVERED': 'bg-green-100 text-green-800',
-      'CANCELLED': 'bg-red-100 text-red-800'
-    };
-    
-    return (
-      <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[status] || 'bg-gray-100'}`}>
-        {status}
-      </span>
-    );
-  };
-
-  const handleAddressChange = (e) => {
-    const { name, value } = e.target;
-    setAddressData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
   const openAddressModal = (order) => {
-    // Pre-fill with current address data if available
+    setSelectedOrder(order);
     setAddressData({
       shipping_address: order.shipping_address || '',
-      billing_address: order.billing_address || ''
+      billing_address: order.billing_address || '',
     });
-    
-    // If billing address is same as shipping or empty, set checkbox to true
     setUseSameAddress(!order.billing_address || order.billing_address === order.shipping_address);
-    
-    setSelectedOrderForAddress(order.id);
     setAddressModalOpen(true);
   };
-
+  
   const openCancelModal = (order) => {
-    setSelectedOrderForCancel(order.id);
+    setSelectedOrder(order);
     setCancelModalOpen(true);
   };
 
-  const renderContent = () => {
-    if (loading) {
-      return <div className="text-center p-4">Loading data...</div>;
-    }
-  
-    if (error) {
-      return <div className="text-center p-4 text-red-500">{error}</div>;
-    }
-  
-    if (selectedOrderId) {
-      const selectedOrder = orders.find(order => order.id === selectedOrderId);
-      return (
-        <div>
-          {selectedOrder && (selectedOrder.status === "PENDING" || selectedOrder.status === "PROCESSING") && (
-            <div className="mb-4 p-4 bg-white rounded shadow">
-              <h3 className="font-medium text-gray-700 mb-3">Order Actions</h3>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => openAddressModal(selectedOrder)}
-                  className="bg-amber-600 hover:bg-amber-700 text-white py-2 px-4 flex items-center gap-2"
-                >
-                  <MapPin className="w-4 h-4" />
-                  Update Address
-                </button>
-                <button
-                  onClick={() => openCancelModal(selectedOrder)}
-                  className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 flex items-center gap-2"
-                >
-                  <Trash2 className="w-4 h-4" />
-                  Cancel Order
-                </button>
-              </div>
-            </div>
-          )}
-          <OrderDetails orderId={selectedOrderId} onBack={() => setSelectedOrderId(null)} />
-        </div>
-      );
-    }
-  
-    switch (activeSection) {
-      case 'overview':
-        return renderOverview();
-      case 'orders':
-        return renderOrders();
-      case 'pending-reviews':
-        return <PendingReviews />;
-      case 'account-management':
-        return renderAccountManagement();
-      default:
-        return renderOverview();
-    }
-  };
-
-  const renderAccountManagement = () => {
-    if (!user) {
-      return <div className="text-center p-4">No user data found. Please log in again.</div>;
-    }
-  
-    return (
-      <div className="bg-white border rounded p-6">
-        <h2 className="text-xl font-bold text-gray-700 mb-6">Account Management</h2>
-        <form onSubmit={updateAccountDetails} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">First Name</label>
-              <input
-                type="text"
-                name="first_name"
-                value={accountData.first_name}
-                onChange={handleAccountChange}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Last Name</label>
-              <input
-                type="text"
-                name="last_name"
-                value={accountData.last_name}
-                onChange={handleAccountChange}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-                required
-              />
-            </div>
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Email</label>
-            <input
-              type="email"
-              name="email"
-              value={accountData.email}
-              onChange={handleAccountChange}
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-              required
-            />
-          </div>
-  
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Phone Number</label>
-            <input
-              type="tel"
-              name="phone_number"
-              value={accountData.phone_number}
-              onChange={handleAccountChange}
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-            />
-          </div>
-  
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">New Password</label>
-              <input
-                type="password"
-                name="password"
-                value={accountData.password}
-                onChange={handleAccountChange}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-                placeholder="Enter new password (min 8 characters)"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Confirm New Password</label>
-              <input
-                type="password"
-                name="confirmPassword"
-                value={accountData.confirmPassword}
-                onChange={handleAccountChange}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-                placeholder="Confirm new password"
-              />
-            </div>
-          </div>
-  
-          <div className="flex justify-end">
-            <button
-              type="submit"
-              disabled={updateLoading}
-              className="bg-amber-600 hover:bg-amber-700 text-white py-2 px-4 "
-            >
-              {updateLoading ? 'Updating...' : 'Update Account'}
-            </button>
-          </div>
-        </form>
-      </div>
-    );
-  };
+  const renderWelcomeHeader = () => (
+    <div className="mb-8">
+        <p className="text-2xl text-gray-500 font-bold mt-1">Manage your orders, account details, and more from your personal dashboard.</p>
+    </div>
+  );
 
   const renderOverview = () => {
-    if (!user) {
-      return <div className="text-center p-4">No user data found. Please log in again.</div>;
-    }
-
+    const recentOrders = orders.slice(0, 3);
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Account Details */}
-        <div className="border rounded bg-white">
-          <div className="border-b p-4">
-            <h2 className="font-bold text-gray-700">ACCOUNT DETAILS</h2>
-          </div>
-          <div className="p-6">
-            <h3 className="text-lg font-medium text-gray-800">{fullName}</h3>
-            <p className="text-gray-500 mt-1">{user.email}</p>
-          </div>
-        </div>
-        
-        {/* Address Book */}
-        <div className="border rounded bg-white">
-          <div className="border-b p-4 flex justify-between items-center">
-            <h2 className="font-bold text-gray-700">CONTACT DETAILS</h2>
-            <button className="text-amber-500">
-              <Edit className="w-5 h-5" />
+      <div className="space-y-6">
+        <Card title="Personal Information">
+          <div className="flex justify-between items-start">
+            <div>
+              <p className="font-semibold text-lg text-gray-700">{fullName}</p>
+              <p className="text-gray-500">{user.email}</p>
+              <p className="text-gray-500">{user.phone_number}</p>
+            </div>
+            <button onClick={() => setActiveSection('account-management')} className="flex items-center gap-2 text-sm font-medium text-amber-600 hover:text-amber-700">
+              <Edit size={16} /> Edit Details
             </button>
           </div>
-          <div className="p-6">
-            <h3 className="font-semibold mb-2">Your contact details:</h3>
-            <div className="text-gray-600">
-              <p>{fullName}</p>
-              <p className="text-gray-500 mt-1">{user.email}</p>
-              <p>{user.phone_number}</p>
-            </div>
-          </div>
-        </div>
-        
-        {/*  Store Credit */}
-        <div className="border rounded bg-white">
-          <div className="border-b p-4">
-            <h2 className="font-bold text-gray-700">STORE CREDIT</h2>
-          </div>
-          <div className="p-6 flex items-center gap-3">
-            <div className="bg-amber-600 text-white p-2 rounded">
-              <Store className="w-5 h-5" />
-            </div>
-            <span className="text-gray-700">Ideal Furniture & Decor store credit balance: KSh 0</span>
-          </div>
-        </div>
-        
-        {/* Newsletter Preferences */}
-        <div className="border rounded bg-white">
-          <div className="border-b p-4">
-            <h2 className="font-bold text-gray-700">NEWSLETTER PREFERENCES</h2>
-          </div>
-          <div className="p-6">
-            <p className="text-gray-700 mb-6">
-              Manage your email communications to stay updated with the latest news and offers.
-            </p>
-            <a href="#" className="text-amber-500">
-              Edit Newsletter preferences
-            </a>
-          </div>
-        </div>
+        </Card>
+        <Card title="Recent Orders">
+            {orders.length > 0 ? (
+                <div className="space-y-4">
+                    {recentOrders.map(order => (
+                        <div key={order.id} className="flex justify-between items-center p-3 rounded-md hover:bg-gray-50">
+                            <div>
+                                <p className="font-semibold">Order #{order.id}</p>
+                                <p className="text-sm text-gray-500">
+                                    {new Date(order.created_at).toLocaleDateString()} - {renderOrderStatus(order.status)}
+                                </p>
+                            </div>
+                            <button onClick={() => setSelectedOrderId(order.id)} className="flex items-center gap-2 text-sm font-medium text-amber-600 hover:text-amber-700">
+                                View Details <ChevronRight size={16} />
+                            </button>
+                        </div>
+                    ))}
+                </div>
+            ) : (
+                <p className="text-gray-500">You have not placed any orders yet.</p>
+            )}
+            <button onClick={() => setActiveSection('orders')} className="mt-4 text-sm font-medium text-amber-600 hover:underline">
+                View All Orders
+            </button>
+        </Card>
       </div>
     );
   };
 
   const renderOrders = () => {
-    if (orders.length === 0) {
-      return (
-        <div className="bg-white p-6 text-center border rounded">
-          <ShoppingBag className="w-12 h-12 mx-auto text-gray-400 mb-3" />
-          <h3 className="text-lg font-medium">You have no orders yet</h3>
-          <p className="text-gray-500 mt-2">When you place your first order, it will appear here</p>
-          <button className="mt-4 bg-amber-500 hover:bg-amber-600 text-white py-2 px-4">
+    if (loading) return <div className="text-center p-10"><Loader2 className="animate-spin h-8 w-8 mx-auto text-amber-600"/></div>;
+    if (orders.length === 0) return (
+      <Card>
+        <div className="text-center py-10">
+          <ShoppingBag className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+          <h3 className="text-xl font-semibold text-gray-700">No Orders Found</h3>
+          <p className="text-gray-500 mt-2">All your future orders will be displayed here.</p>
+          <button onClick={() => navigate('/shop')} className="mt-6 bg-amber-600 hover:bg-amber-700 text-white font-bold py-2 px-6 rounded-md transition-colors">
             Start Shopping
           </button>
         </div>
-      );
-    }
+      </Card>
+    );
 
     return (
-      <div>
-        <div className="bg-white border rounded">
-          <div className="border-b p-4">
-            <h2 className="font-bold text-gray-700">MY ORDERS</h2>
+      <Card className="p-0 overflow-hidden">
+        <div className="md:hidden">
+          <div className="divide-y divide-gray-200">
+            {orders.map(order => (
+              <div key={order.id} className="p-4 space-y-3">
+                <div className="flex justify-between items-center">
+                    <p className="font-bold text-gray-800">Order #{order.id}</p>
+                    {renderOrderStatus(order.status)}
+                </div>
+                <div className="text-sm text-gray-600 space-y-1">
+                    <p><strong>Date:</strong> {new Date(order.created_at).toLocaleDateString()}</p>
+                    <p><strong>Total:</strong> KSh {order.total_price}</p>
+                </div>
+                <div className="flex gap-2 pt-2 border-t mt-2">
+                    <button onClick={() => setSelectedOrderId(order.id)} className="flex-1 text-sm bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-3 rounded-md">View</button>
+                    {(order.status === 'PENDING' || order.status === 'PROCESSING') && (
+                        <>
+                            <button onClick={() => openAddressModal(order)} className="p-2 bg-gray-200 hover:bg-gray-300 rounded-md"><MapPin size={16}/></button>
+                            <button onClick={() => openCancelModal(order)} className="p-2 bg-gray-200 hover:bg-gray-300 rounded-md"><Trash2 size={16}/></button>
+                        </>
+                    )}
+                </div>
+              </div>
+            ))}
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50 border-b">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {orders.map(order => (
-                  <tr key={order.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#{order.id}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {new Date(order.created_at).toLocaleDateString()}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      Ksh {formatPrice(order.total_price)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {renderOrderStatus(order.status)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium flex justify-end items-center gap-2">
+        </div>
+
+        <div className="hidden md:block overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-gray-50 text-left text-gray-500">
+              <tr>
+                <th className="p-4 font-semibold">Order</th>
+                <th className="p-4 font-semibold">Date</th>
+                <th className="p-4 font-semibold">Status</th>
+                <th className="p-4 font-semibold">Total</th>
+                <th className="p-4 font-semibold text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {orders.map(order => (
+                <tr key={order.id} className="hover:bg-gray-50">
+                  <td className="p-4 font-medium text-gray-800">#{order.id}</td>
+                  <td className="p-4 text-gray-600">{new Date(order.created_at).toLocaleDateString()}</td>
+                  <td className="p-4">{renderOrderStatus(order.status)}</td>
+                  <td className="p-4 text-gray-600">KSh {order.total_price}</td>
+                  <td className="p-4">
+                    <div className="flex justify-end items-center gap-3">
                       {(order.status === 'PENDING' || order.status === 'PROCESSING') && (
                         <>
-                          <button 
-                            onClick={() => openAddressModal(order)}
-                            disabled={updateLoading}
-                            className="text-amber-600 hover:text-amber-700 flex items-center gap-1"
-                          >
-                            <Edit className="w-4 h-4" />
-                          </button>
-                          <button 
-                            onClick={() => openCancelModal(order)}
-                            disabled={cancelLoading}
-                            className="text-red-500 hover:text-red-700 flex items-center gap-1"
-                          >
-                            <Trash2  className='w-4 h-4'/>
-                          </button>
+                          <button onClick={() => openAddressModal(order)} className="text-gray-500 hover:text-amber-600" title="Update Address"><MapPin size={18}/></button>
+                          <button onClick={() => openCancelModal(order)} className="text-gray-500 hover:text-red-600" title="Cancel Order"><Trash2 size={18}/></button>
                         </>
                       )}
-                      <button 
-                        onClick={() => viewOrderDetails(order.id)}
-                        className="text-amber-500 hover:text-amber-700"
-                      >
-                        <Eye className="w-4 h-4"/>
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                      <button onClick={() => setSelectedOrderId(order.id)} className="font-semibold text-amber-600 hover:underline">View Details</button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-      </div>
+      </Card>
     );
   };
-
-  const viewOrderDetails = (orderId) => {
-    setSelectedOrderId(orderId);
+  
+  const renderOrderStatus = (status) => {
+    const statusMap = {
+      'PENDING':    'bg-yellow-100 text-yellow-800',
+      'PROCESSING': 'bg-blue-100 text-blue-800',
+      'SHIPPED':    'bg-purple-100 text-purple-800',
+      'DELIVERED':  'bg-green-100 text-green-800',
+      'CANCELLED':  'bg-red-100 text-red-800',
+    };
+    return <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${statusMap[status] || 'bg-gray-100'}`}>{status}</span>;
   };
-
-  // Address Update Modal
-  const AddressUpdateModal = () => {
-    if (!addressModalOpen) return null;
-    
-    return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div className="bg-white rounded-lg w-full max-w-md p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-medium">Update Address</h3>
-            <button 
-              onClick={() => {
-                setAddressModalOpen(false);
-                setSelectedOrderForAddress(null);
-              }}
-              className="text-gray-400 hover:text-gray-500"
-            >
-              <X className="w-5 h-5" />
-            </button>
+  
+  const renderAccountManagement = () => (
+    <Card title="Account Management">
+      <form onSubmit={updateAccountDetails} className="space-y-8">
+        <fieldset>
+          <legend className="text-base font-semibold text-gray-700 mb-4">Personal Information</legend>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="w-full">
+              <label className="block text-sm font-medium text-gray-600 mb-1">First Name</label>
+              <input type="text" name="first_name" value={accountData.first_name} onChange={handleAccountChange} className="w-full p-2 border border-gray-300 rounded-md focus:ring-amber-500 focus:border-amber-500" required />
+            </div>
+            <div className="w-full">
+              <label className="block text-sm font-medium text-gray-600 mb-1">Last Name</label>
+              <input type="text" name="last_name" value={accountData.last_name} onChange={handleAccountChange} className="w-full p-2 border border-gray-300 rounded-md focus:ring-amber-500 focus:border-amber-500" required />
+            </div>
+            <div className="w-full">
+              <label className="block text-sm font-medium text-gray-600 mb-1">Email</label>
+              <input type="email" name="email" value={accountData.email} onChange={handleAccountChange} className="w-full p-2 border border-gray-300 rounded-md focus:ring-amber-500 focus:border-amber-500" required />
+            </div>
+            <div className="w-full">
+              <label className="block text-sm font-medium text-gray-600 mb-1">Phone Number</label>
+              <input type="tel" name="phone_number" value={accountData.phone_number} onChange={handleAccountChange} className="w-full p-2 border border-gray-300 rounded-md focus:ring-amber-500 focus:border-amber-500" />
+            </div>
           </div>
-          
-          <form onSubmit={(e) => {
-            e.preventDefault();
-            updateOrderAddress(selectedOrderForAddress);
-          }}>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Shipping Address</label>
-                <textarea
-                  name="shipping_address"
-                  value={addressData.shipping_address}
-                  onChange={handleAddressChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-                  rows="4"
-                  placeholder="Enter your complete shipping address (street, city, state, postal code, country)"
-                  required
-                ></textarea>
-              </div>
-              
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  id="same-address"
-                  checked={useSameAddress}
-                  onChange={(e) => setUseSameAddress(e.target.checked)}
-                  className="rounded border-gray-300 text-amber-600 shadow-sm focus:border-amber-300 focus:ring focus:ring-amber-200 focus:ring-opacity-50"
-                />
-                <label htmlFor="same-address" className="ml-2 block text-sm text-gray-700">
-                  Billing address same as shipping address
-                </label>
-              </div>
-              
-              {!useSameAddress && (
+        </fieldset>
+
+        <hr/>
+        
+        <fieldset>
+            <legend className="text-base font-semibold text-gray-700 mb-2">Change Password</legend>
+            <p className="text-sm text-gray-500 mb-4">Leave fields blank to keep your current password.</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Billing Address</label>
-                  <textarea
-                    name="billing_address"
-                    value={addressData.billing_address}
-                    onChange={handleAddressChange}
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-                    rows="4"
-                    placeholder="Enter your complete billing address (street, city, state, postal code, country)"
-                    required={!useSameAddress}
-                  ></textarea>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">New Password</label>
+                    <input type="password" name="password" value={accountData.password} onChange={handleAccountChange} className="w-full p-2 border border-gray-300 rounded-md focus:ring-amber-500 focus:border-amber-500" placeholder="Minimum 8 characters" />
                 </div>
-              )}
+                <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">Confirm New Password</label>
+                    <input type="password" name="confirmPassword" value={accountData.confirmPassword} onChange={handleAccountChange} className="w-full p-2 border border-gray-300 rounded-md focus:ring-amber-500 focus:border-amber-500" />
+                </div>
             </div>
-            
-            <div className="mt-6 flex justify-end gap-3">
-              <button
-                type="button"
-                onClick={() => {
-                  setAddressModalOpen(false);
-                  setSelectedOrderForAddress(null);
-                }}
-                className="px-4 py-2 border border-gray-300 text-gray-700 hover:bg-gray-50"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={updateLoading}
-                className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white"
-              >
-                {updateLoading ? 'Updating...' : 'Update Address'}
-              </button>
-            </div>
-          </form>
+        </fieldset>
+        
+        <div className="flex justify-end pt-4">
+          <button type="submit" disabled={isUpdating} className="flex items-center justify-center bg-amber-600 hover:bg-amber-700 text-white font-bold py-2.5 px-6 rounded-md transition-colors w-40 disabled:bg-gray-400">
+            {isUpdating ? <Loader2 className="animate-spin" /> : 'Save Changes'}
+          </button>
         </div>
-      </div>
-    );
-  };
+      </form>
+    </Card>
+  );
 
-  // Cancel Order Confirmation Modal
-  const CancelOrderModal = () => {
-    if (!cancelModalOpen) return null;
-    
-    return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div className="bg-white rounded-lg w-full max-w-md p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-medium">Cancel Order</h3>
-            <button 
-              onClick={() => {
-                setCancelModalOpen(false);
-                setSelectedOrderForCancel(null);
-              }}
-              className="text-gray-400 hover:text-gray-500"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-          
-          <div className="py-4">
-            <p className="text-gray-700">Are you sure you want to cancel this order? This action cannot be undone.</p>
-          </div>
-          
-          <div className="mt-6 flex justify-end gap-3">
-            <button
-              type="button"
-              onClick={() => {
-                setCancelModalOpen(false);
-                setSelectedOrderForCancel(null);
-              }}
-              className="px-4 py-2 border border-gray-300 text-gray-700 hover:bg-gray-50"
-            >
-              No, Keep Order
-            </button>
-            <button
-              onClick={() => cancelOrder(selectedOrderForCancel)}
-              disabled={cancelLoading}
-              className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white"
-            >
-              {cancelLoading ? 'Cancelling...' : 'Yes, Cancel Order'}
-            </button>
-          </div>
-        </div>
-      </div>
-    );
+  const renderContent = () => {
+    if (loading && !user) return <div className="text-center p-10"><Loader2 className="animate-spin h-8 w-8 mx-auto text-amber-600"/></div>;
+    if (error && !selectedOrderId) return <Card><p className="text-red-500 text-center">{error}</p></Card>;
+
+    if (selectedOrderId) {
+      return <OrderDetails orderId={selectedOrderId} onBack={() => setSelectedOrderId(null)} />;
+    }
+
+    switch (activeSection) {
+      case 'overview': return renderOverview();
+      case 'orders': return renderOrders();
+      case 'pending-reviews': return <PendingReviews />;
+      case 'account-management': return renderAccountManagement();
+      default: return renderOverview();
+    }
   };
 
   return (
-    <div className="flex flex-col md:flex-row w-full min-h-screen bg-gray-100 pt-16">
-      {/* Sidebar */}
-      <div className="w-full md:w-80 bg-white shadow-md">
-        <div className="p-4 bg-gray-200 flex items-center gap-3">
-          <User className="w-5 h-5" />
-          <span className="font-medium">My Account</span>
+    <div className="bg-gray-50 min-h-screen pt-16">
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex flex-col md:flex-row gap-8">
+
+          <aside className="w-full md:w-64 lg:w-72 flex-shrink-0">
+            <div className="bg-white rounded-lg shadow-sm p-4 sticky top-24">
+              <div className="text-center pb-4 mb-4 border-b">
+                  <h2 className="font-bold text-xl text-gray-800">{fullName}</h2>
+                  <p className="text-sm text-gray-500 break-words">{user?.email}</p>
+              </div>
+              <nav>
+                <ul>
+                  <NavItem icon={User} label="Account Overview" isActive={activeSection === 'overview' && !selectedOrderId} onClick={() => { setActiveSection('overview'); setSelectedOrderId(null); }} />
+                  <NavItem icon={ShoppingBag} label="My Orders" isActive={activeSection === 'orders' || !!selectedOrderId} onClick={() => { setActiveSection('orders'); setSelectedOrderId(null); }} />
+                  <NavItem icon={MessageSquare} label="Pending Reviews" isActive={activeSection === 'pending-reviews'} onClick={() => { setActiveSection('pending-reviews'); setSelectedOrderId(null); }} />
+                  <NavItem icon={Settings} label="Account Settings" isActive={activeSection === 'account-management'} onClick={() => { setActiveSection('account-management'); setSelectedOrderId(null); }} />
+                </ul>
+              </nav>
+              <div className="mt-6 pt-4 border-t">
+                <button onClick={handleLogout} className="flex w-full items-center gap-4 px-4 py-2 text-gray-600 hover:text-red-600 font-medium transition-colors">
+                  <LogOut className="w-5 h-5" />
+                  <span>Logout</span>
+                </button>
+              </div>
+            </div>
+          </aside>
+
+          <main className="flex-1">
+            {renderWelcomeHeader()}
+            {renderContent()}
+          </main>
         </div>
-        
-        <nav className="py-2">
-          <ul>
-            <li>
-              <button 
-                onClick={() => {
-                  setActiveSection('overview');
-                  setSelectedOrderId(null);
-                }} 
-                className={`flex w-full items-center gap-3 px-4 py-3 hover:bg-gray-100 ${activeSection === 'overview' && !selectedOrderId ? 'bg-gray-100 text-amber-500' : 'text-gray-800'}`}
-              >
-                <User className="w-5 h-5" />
-                <span>Account Overview</span>
+      </div>
+      
+      <Modal isOpen={isAddressModalOpen} onClose={() => setAddressModalOpen(false)} title="Update Shipping Address">
+          <form onSubmit={updateOrderAddress}>
+              <div className="space-y-4">
+                  <textarea name="shipping_address" value={addressData.shipping_address} onChange={handleAddressChange} className="w-full p-2 border border-gray-300 rounded-md focus:ring-amber-500 focus:border-amber-500 h-28" placeholder="Enter complete shipping address..." required />
+                  <div className="flex items-center">
+                    <input type="checkbox" id="same-address" checked={useSameAddress} onChange={(e) => setUseSameAddress(e.target.checked)} className="h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500"/>
+                    <label htmlFor="same-address" className="ml-2 text-sm text-gray-700">Billing address is same as shipping</label>
+                  </div>
+                  {!useSameAddress && (
+                    <textarea name="billing_address" value={addressData.billing_address} onChange={handleAddressChange} className="w-full p-2 border border-gray-300 rounded-md focus:ring-amber-500 focus:border-amber-500 h-28" placeholder="Enter complete billing address..." required={!useSameAddress} />
+                  )}
+              </div>
+              <div className="mt-6 flex justify-end gap-3">
+                  <button type="button" onClick={() => setAddressModalOpen(false)} className="px-4 py-2 border rounded-md text-gray-700 hover:bg-gray-100">Cancel</button>
+                  <button type="submit" disabled={isUpdating} className="flex items-center justify-center bg-amber-600 hover:bg-amber-700 text-white font-bold py-2 px-4 rounded-md w-32">
+                    {isUpdating ? <Loader2 className="animate-spin" /> : 'Update'}
+                  </button>
+              </div>
+          </form>
+      </Modal>
+
+      <Modal isOpen={isCancelModalOpen} onClose={() => setCancelModalOpen(false)} title="Confirm Cancellation">
+          <p className="text-gray-600">Are you sure you want to cancel Order #{selectedOrder?.id}? This action cannot be undone.</p>
+          <div className="mt-6 flex justify-end gap-3">
+              <button type="button" onClick={() => setCancelModalOpen(false)} className="px-4 py-2 border rounded-md text-gray-700 hover:bg-gray-100">No, Keep Order</button>
+              <button onClick={cancelOrder} disabled={isCancelling} className="flex items-center justify-center bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-md w-40">
+                {isCancelling ? <Loader2 className="animate-spin" /> : 'Yes, Cancel Order'}
               </button>
-            </li>
-            <li>
-              <button 
-                onClick={() => {
-                  setActiveSection('orders');
-                  setSelectedOrderId(null);
-                }} 
-                className={`flex w-full items-center gap-3 px-4 py-3 hover:bg-gray-100 ${(activeSection === 'orders' || selectedOrderId) ? 'bg-gray-100 text-amber-500' : 'text-gray-800'}`}
-              >
-                <ShoppingBag className="w-5 h-5" />
-                <span>Orders</span>
-              </button>
-            </li>
-            <li>
-              <button 
-                onClick={() => {
-                  setActiveSection('pending-reviews');
-                  setSelectedOrderId(null);
-                }} 
-                className={`flex w-full items-center gap-3 px-4 py-3 hover:bg-gray-100 ${activeSection === 'pending-reviews' ? 'bg-gray-100 text-amber-500' : 'text-gray-800'}`}
-              >
-                <MessageSquare className="w-5 h-5" />
-                <span>Reviews</span>
-              </button>
-            </li>
-            <li>
-              <button 
-                onClick={() => {
-                  setActiveSection('account-management');
-                  setSelectedOrderId(null);
-                }} 
-                className={`flex w-full items-center gap-3 px-4 py-3 hover:bg-gray-100 ${activeSection === 'account-management' ? 'bg-gray-100 text-amber-500' : 'text-gray-800'}`}
-              >
-                <Settings className="w-5 h-5" />
-                <span>Account Management</span>
-              </button>
-            </li>
-            
-          </ul>
-          
-          
-          
-          <div className="mt-6 px-4 py-3 text-center">
-            <button
-             onClick={()=>{handleLogout()}} 
-             className="text-amber-500 flex justify-center items-center gap-2">
-              <LogOut className="w-5 h-5" />
-              <span>Logout</span>
-            </button>
           </div>
-        </nav>
-      </div>
-      
-      {/* Main Content */}
-      <div className="flex-1 p-4">
-        {renderContent()}
-      </div>
-      
-      {/* Address Update Modal */}
-      <AddressUpdateModal />
-      
-      {/* Cancel Order Modal */}
-      <CancelOrderModal />
+      </Modal>
     </div>
   );
 };
