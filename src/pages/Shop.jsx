@@ -32,7 +32,7 @@ const ProductList = () => {
 
   // Check if the error is a server error (status 500)
   useEffect(() => {
-    document.title = 'Products | Shop'
+    document.title = 'Products | Ideal Furniture & Decor'
     if (isError && error?.response?.status === 500) {
       setServerError(true);
     } else {

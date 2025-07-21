@@ -41,7 +41,7 @@ const OrderConfirmationPage = () => {
   
   // Get order details from location state or fetch from API
   useEffect(() => {
-    document.title = 'Order Confirmation | Shop'
+    document.title = 'Order Confirmation | Ideal Furniture & Decor'
     const orderDetails = location.state?.orderDetails;
     const paymentMethod = location.state?.paymentMethod;
     

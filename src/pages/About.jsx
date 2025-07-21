@@ -11,7 +11,7 @@ const AboutPage = () => {
   const teamMember = { id: 1, name: "Kennedy Odhiambo", position: "Founder & CEO", image: man1 };
 
   useEffect(() => {
-    document.title = 'About | Shop';
+    document.title = 'About | Ideal Furniture & Decor';
   }, []);
 
   return (

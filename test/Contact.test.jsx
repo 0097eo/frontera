@@ -54,6 +54,6 @@ describe('ContactPage', () => {
     });
 
     test('sets document title on mount', () => {
-        expect(document.title).toBe('Contact | Shop');
+        expect(document.title).toBe('Contact | Ideal Furniture & Decor');
     });
 });

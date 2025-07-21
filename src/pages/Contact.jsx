@@ -14,7 +14,7 @@ const ContactPage = () => {
   });
 
   useEffect(() => {
-      document.title = 'Contact | Shop';
+      document.title = 'Contact | Ideal Furniture & Decor';
     }, []);
 
   const handleChange = (e) => {

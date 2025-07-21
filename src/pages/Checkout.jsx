@@ -35,7 +35,7 @@ const CheckoutPage = () => {
   const finalTotal = total + shippingFeeAmount;
 
   useEffect(() => {
-    document.title = 'Checkout | Shop'
+    document.title = 'Checkout | Ideal Furniture & Decor'
     if (!loading && items.length === 0) {
       toast.error("Your cart is empty", {
         description: "Please add items to your cart before checkout"

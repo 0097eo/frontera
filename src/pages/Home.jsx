@@ -21,7 +21,7 @@ const Home = () => {
   const handleshopNow = () => navigate('/shop');
 
   useEffect(() => {
-    document.title = 'Home | Shop';
+    document.title = 'Home | Ideal Furniture & Decor';
   }, []);
   
   // Use the products hook with a limit parameter

@@ -13,7 +13,7 @@ const CartPage = () => {
 
 
   useEffect(() => {
-    document.title = 'Shopping Cart | Shop';
+    document.title = 'Shopping Cart | Ideal Furniture & Decor';
   }, []);
 
   const handleQuantityChange = async (itemId, newQuantity) => {

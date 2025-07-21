@@ -122,6 +122,6 @@ describe('CartPage', () => {
 
     it('updates document title on mount', () => {
         render(<CartPage />, { wrapper: MemoryRouter });
-        expect(document.title).toBe('Shopping Cart | Shop');
+        expect(document.title).toBe('Shopping Cart | Ideal Furniture & Decor');
     });
 });

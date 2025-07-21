@@ -12,7 +12,7 @@ const WishlistPage = () => {
   const { addItem, items: cartItems } = useCart();
 
   useEffect(() => {
-    document.title = 'Wishlist | Shop';
+    document.title = 'Wishlist | Ideal Furniture & Decor';
   }, []);
   
   const handleRemoveItem = async (productId) => {
