@@ -119,6 +119,7 @@ const Logo = () => (
   </div>
 );
 
+import LanguageSwitcher from './LanguageSwitcher';
 // --- Main Navbar Component ---
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -176,6 +177,8 @@ const Navbar = () => {
           </div>
           
           <div data-testid="desktop-auth-section" className="hidden md:flex items-center justify-end space-x-4 font-bold w-1/3 md:w-1/4">
+            <LanguageSwitcher />
+            
             {isAuthenticated ? (
               <div className="flex items-center space-x-5">
                 <NavIcon to="/account" title="My Account">
@@ -214,6 +217,11 @@ const Navbar = () => {
 
         <div data-testid="mobile-menu" className={`transition-all duration-500 ease-in-out md:hidden overflow-hidden ${isOpen ? 'max-h-screen' : 'max-h-0'}`}>
           <div className="p-4 space-y-2 bg-white/95 border-t border-gray-200 font-bold">
+            {/* Language Switcher for Mobile */}
+            <div className="pb-3 border-b border-gray-200">
+              <LanguageSwitcher />
+            </div>
+            
             {navLinks.map((link) => (
               <NavItem key={link.to} to={link.to} setIsOpen={setIsOpen}>{link.label}</NavItem>
             ))}
